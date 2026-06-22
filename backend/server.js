@@ -583,8 +583,8 @@ app.use("/api", (req, res) => {
 // Inicia o servidor
 // -------------------------------------------------------
 app.listen(PORT, () => {
-  console.log(`\n✅ Servidor rodando em http://localhost:${PORT}`);
-  console.log(`📋 Admin: http://localhost:${PORT}/admin`);
-  console.log(`🎮 Site:  http://localhost:${PORT}/Index.html`);
+  console.log(`\n✅ Servidor rodando em https://e-jeniff.onrender.com`);
+  console.log(`📋 Admin: https://e-jeniff.onrender.com/admin`);
+  console.log(`🎮 Site:  https://e-jeniff.onrender.com/Index.html`);
   console.log(`\n🔐 Senha admin definida via .env (ADMIN_PASSWORD)\n`);
 });
