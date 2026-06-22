@@ -7,7 +7,7 @@ const rateLimit     = require("express-rate-limit");
 const Database      = require("better-sqlite3");
 const path          = require("path");
 const crypto        = require("crypto");
-const { Resend }    = require("resend");
+//const { Resend }    = require("resend");
 
 const app  = express();
 const PORT = 3000;
@@ -20,7 +20,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "ejiniff@admin2026";
 // -------------------------------------------------------
 // Configuração de e-mail — Resend
 // -------------------------------------------------------
-const resend = new Resend(process.env.RESEND_API_KEY);
+//const resend = new Resend(process.env.RESEND_API_KEY);
 
 const MODALIDADES_NOME = {
   lol:      "League of Legends",
@@ -30,157 +30,12 @@ const MODALIDADES_NOME = {
   xadrez:   "Xadrez Arena",
 };
 
+
 async function enviarEmailConfirmacao(inscricao) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("⚠️  RESEND_API_KEY não configurada — e-mail não enviado.");
-    return;
-  }
-
-  // Busca os dados completos do banco para garantir que estão corretos
-  const dados = db.prepare("SELECT * FROM inscricoes WHERE id = ?").get(inscricao.id);
-  if (!dados) {
-    console.warn("⚠️  Inscrição não encontrada no banco para envio de e-mail.");
-    return;
-  }
-
-  const modalidadeNome = MODALIDADES_NOME[dados.modalidade] || dados.modalidade;
-  const dataFormatada  = new Date(dados.data_inscricao).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
-
-  // Formata CPF para exibição: 000.000.000-00
-  const cpfFormatado = dados.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-
-  const campoExtraHtml = dados.campo_extra_label && dados.campo_extra_valor
-    ? `
-      <tr>
-        <td style="padding:10px 14px;border-bottom:1px solid #1f2937;color:#9ca3af;font-size:0.9rem;white-space:nowrap;">${dados.campo_extra_label}</td>
-        <td style="padding:10px 14px;border-bottom:1px solid #1f2937;font-weight:bold;font-size:0.9rem;">${dados.campo_extra_valor}</td>
-      </tr>`
-    : "";
-
-  const html = `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Confirmação de Inscrição — e-JINIFF 2026</title>
-</head>
-<body style="margin:0;padding:0;background:#0d1117;font-family:Arial,Helvetica,sans-serif;color:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#0d1117;padding:32px 16px;">
-    <tr><td align="center">
-      <table width="100%" style="max-width:580px;" cellpadding="0" cellspacing="0">
-
-        <!-- HEADER -->
-        <tr>
-          <td style="background:#05080d;border-radius:16px 16px 0 0;border:1px solid #00a859;border-bottom:none;padding:28px 36px;text-align:center;">
-            <div style="font-size:2rem;font-weight:bold;color:#00ff88;letter-spacing:-0.5px;">e-JINIFF 2026</div>
-            <div style="font-size:0.82rem;color:#6b7280;margin-top:4px;">Instituto Federal Fluminense — Campus Quissamã</div>
-          </td>
-        </tr>
-
-        <!-- BANNER VERDE -->
-        <tr>
-          <td style="background:linear-gradient(135deg,#00a859,#00ff88);padding:20px 36px;text-align:center;">
-            <div style="font-size:1.6rem;">✅</div>
-            <div style="font-size:1.1rem;font-weight:bold;color:#05080d;margin-top:6px;">Inscrição confirmada!</div>
-          </td>
-        </tr>
-
-        <!-- CORPO -->
-        <tr>
-          <td style="background:#111827;border:1px solid #1f2937;border-top:none;border-bottom:none;padding:32px 36px;">
-
-            <p style="margin:0 0 6px;font-size:1.05rem;">Olá, <strong style="color:#00ff88;">${dados.nome}</strong>! 👋</p>
-            <p style="margin:0 0 24px;color:#9ca3af;font-size:0.95rem;line-height:1.6;">
-              Agradecemos sua participação nos <strong style="color:#f5f5f5;">Jogos Internos e-JINIFF 2026</strong>!
-              Sua inscrição foi registrada com sucesso em nosso sistema. Confira seus dados abaixo.
-            </p>
-
-            <!-- TABELA DE DADOS -->
-            <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d1117;border-radius:10px;border:1px solid #1f2937;overflow:hidden;margin-bottom:24px;">
-              <thead>
-                <tr>
-                  <td colspan="2" style="background:#0d1117;padding:12px 14px;border-bottom:1px solid #1f2937;">
-                    <span style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#4b5563;font-weight:bold;">Dados da inscrição</span>
-                  </td>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="padding:10px 14px;border-bottom:1px solid #1f2937;color:#9ca3af;font-size:0.9rem;white-space:nowrap;">Nome completo</td>
-                  <td style="padding:10px 14px;border-bottom:1px solid #1f2937;font-weight:bold;font-size:0.9rem;">${dados.nome}</td>
-                </tr>
-                <tr>
-                  <td style="padding:10px 14px;border-bottom:1px solid #1f2937;color:#9ca3af;font-size:0.9rem;">Matrícula</td>
-                  <td style="padding:10px 14px;border-bottom:1px solid #1f2937;font-weight:bold;font-size:0.9rem;">${dados.matricula}</td>
-                </tr>
-                <tr>
-                  <td style="padding:10px 14px;border-bottom:1px solid #1f2937;color:#9ca3af;font-size:0.9rem;">CPF</td>
-                  <td style="padding:10px 14px;border-bottom:1px solid #1f2937;font-weight:bold;font-size:0.9rem;">${cpfFormatado}</td>
-                </tr>
-                <tr>
-                  <td style="padding:10px 14px;border-bottom:1px solid #1f2937;color:#9ca3af;font-size:0.9rem;">E-mail</td>
-                  <td style="padding:10px 14px;border-bottom:1px solid #1f2937;font-weight:bold;font-size:0.9rem;">${dados.email}</td>
-                </tr>
-                <tr>
-                  <td style="padding:10px 14px;border-bottom:1px solid #1f2937;color:#9ca3af;font-size:0.9rem;">Modalidade</td>
-                  <td style="padding:10px 14px;border-bottom:1px solid #1f2937;font-size:0.9rem;">
-                    <span style="background:#00a85920;color:#00ff88;border:1px solid #00a859;border-radius:20px;padding:3px 12px;font-weight:bold;font-size:0.82rem;">${modalidadeNome}</span>
-                  </td>
-                </tr>
-                ${campoExtraHtml}
-                <tr>
-                  <td style="padding:10px 14px;color:#9ca3af;font-size:0.9rem;">Data da inscrição</td>
-                  <td style="padding:10px 14px;font-size:0.9rem;">${dataFormatada}</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <!-- AVISO -->
-            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fbbf2415;border:1px solid #fbbf2440;border-radius:10px;margin-bottom:24px;">
-              <tr>
-                <td style="padding:14px 18px;">
-                  <span style="font-size:1rem;">📢</span>
-                  <span style="font-size:0.88rem;color:#fbbf24;margin-left:8px;font-weight:bold;">Próximos passos</span>
-                  <p style="margin:8px 0 0;color:#d1d5db;font-size:0.88rem;line-height:1.6;">
-                    Fique atento aos comunicados da equipe organizadora sobre datas, horários e local das seletivas.
-                    As informações serão divulgadas pelos canais oficiais do IFF Campus Quissamã.
-                  </p>
-                </td>
-              </tr>
-            </table>
-
-            <p style="margin:0;color:#6b7280;font-size:0.85rem;line-height:1.6;">
-              Se você não realizou essa inscrição ou há algum dado incorreto, entre em contato com a equipe organizadora o quanto antes.
-            </p>
-
-          </td>
-        </tr>
-
-        <!-- FOOTER -->
-        <tr>
-          <td style="background:#05080d;border-radius:0 0 16px 16px;border:1px solid #1f2937;border-top:none;padding:20px 36px;text-align:center;">
-            <p style="margin:0;color:#374151;font-size:0.8rem;">© 2026 Jogos Internos e-JINIFF — IFF Campus Quissamã</p>
-            <p style="margin:6px 0 0;color:#374151;font-size:0.75rem;">Este é um e-mail automático, não responda.</p>
-          </td>
-        </tr>
-
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>`;
-
-  const { error } = await resend.emails.send({
-    from: `${process.env.EMAIL_NOME || "e-JINIFF 2026"} <onboarding@resend.dev>`,
-    to: "inscricoes.ejiniff@gmail.com",
-    subject: `Nova inscrição — ${dados.nome} — ${modalidadeNome} | e-JINIFF 2026`,
-    html,
-  });
-
-  if (error) throw new Error(error.message);
-
-  console.log(`📧 E-mail enviado para ${dados.email} (${dados.nome} — ${modalidadeNome})`);
+  console.log("📧 Envio de e-mail desativado temporariamente.");
+  return;
 }
+  
 // -------------------------------------------------------
 // Banco de dados SQLite
 // -------------------------------------------------------
