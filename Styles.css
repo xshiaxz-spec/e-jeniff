@@ -1,0 +1,571 @@
+/* =====================================================
+   RESET & BASE
+   ===================================================== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0d1117;
+  color: #f5f5f5;
+  line-height: 1.6;
+}
+
+/* =====================================================
+   HEADER / NAV
+   ===================================================== */
+.header {
+  background: #05080d;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid #00a859;
+}
+
+.navbar {
+  max-width: 1100px;
+  margin: auto;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.logo-iff {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.logo-ejiniff {
+  height: 56px;
+  width: auto;
+  object-fit: contain;
+}
+
+.logo {
+  color: #00ff88;
+  font-size: 1.6rem;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  color: #f5f5f5;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a:focus {
+  color: #00ff88;
+  outline: none;
+}
+
+/* Menu hamburguer (mobile) */
+.menu-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid #00a859;
+  color: #00ff88;
+  font-size: 1.4rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* =====================================================
+   BOTÕES
+   ===================================================== */
+.btn,
+.btn-small {
+  background: #00a859;
+  color: #fff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn:hover,
+.btn:focus,
+.btn-small:hover,
+.btn-small:focus {
+  background: #00ff88;
+  color: #0d1117;
+  outline: none;
+}
+
+.btn-small {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* =====================================================
+   HERO
+   ===================================================== */
+.hero {
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  background:
+    linear-gradient(rgba(13, 17, 23, 0.88), rgba(13, 17, 23, 0.88)),
+    url("https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80");
+  background-size: cover;
+  background-position: center;
+  padding: 60px 20px;
+}
+
+.hero-content {
+  max-width: 780px;
+  margin: auto;
+  text-align: center;
+}
+
+.hero-logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 20px;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+.tag {
+  display: inline-block;
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.hero h2 {
+  font-size: 3rem;
+  margin: 16px 0;
+  line-height: 1.2;
+}
+
+.hero p {
+  font-size: 1.15rem;
+  margin-bottom: 32px;
+  color: #ccc;
+}
+
+/* =====================================================
+   SEÇÕES
+   ===================================================== */
+.section {
+  max-width: 1100px;
+  margin: auto;
+  padding: 70px 20px;
+}
+
+.section h2 {
+  color: #00ff88;
+  font-size: 2rem;
+  margin-bottom: 24px;
+}
+
+.dark-card {
+  background: #111827;
+  border-radius: 18px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  max-width: 100%;
+  padding: 60px 40px;
+}
+
+.dark-card h2 {
+  color: #00ff88;
+  font-size: 2rem;
+  margin-bottom: 24px;
+}
+
+/* =====================================================
+   GRID DE PROPOSTAS
+   ===================================================== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: #0d1117;
+  padding: 22px;
+  border-radius: 14px;
+  border: 1px solid #00a859;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 168, 89, 0.2);
+}
+
+.card h3 {
+  color: #00ff88;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+/* =====================================================
+   MODALIDADES
+   ===================================================== */
+.games {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.game {
+  background: #111827;
+  border: 1px solid #00a859;
+  padding: 24px 16px;
+  border-radius: 14px;
+  text-align: center;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  cursor: pointer;
+  user-select: none;
+}
+
+.game:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 168, 89, 0.25);
+}
+
+.game.selecionado {
+  border-color: #00ff88;
+  box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.3);
+  transform: translateY(-4px);
+}
+
+.game-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.game-nome {
+  font-size: 0.9rem;
+  color: #f5f5f5;
+}
+
+.game-inscritos {
+  font-size: 0.75rem;
+  color: #00a859;
+  font-weight: normal;
+  background: #00a85915;
+  border: 1px solid #00a85940;
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+/* =====================================================
+   ANIMAÇÃO DE ENTRADA DAS SEÇÕES (fade-in ao rolar)
+   ===================================================== */
+.section,
+.dark-card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.section.visivel,
+.dark-card.visivel {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =====================================================
+   CONFIRMAÇÃO PÓS-INSCRIÇÃO
+   ===================================================== */
+.confirmacao {
+  margin-top: 20px;
+  max-width: 700px;
+}
+
+.confirmacao-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: #00a85915;
+  border: 1px solid #00a859;
+  border-radius: 12px;
+  padding: 18px 22px;
+}
+
+.confirmacao-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.confirmacao-box strong {
+  color: #00ff88;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.confirmacao-box p {
+  color: #ccc;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* =====================================================
+   SCROLL SPY — link ativo no menu
+   ===================================================== */
+.nav-links a.ativo {
+  color: #00ff88;
+  border-bottom: 2px solid #00ff88;
+  padding-bottom: 2px;
+}
+
+/* =====================================================
+   FORMULÁRIO
+   ===================================================== */
+.form {
+  background: #111827;
+  padding: 30px;
+  border-radius: 18px;
+  display: grid;
+  gap: 18px;
+  max-width: 700px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+input,
+select {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #0d1117;
+  color: #f5f5f5;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #00ff88;
+  box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.15);
+}
+
+input::placeholder {
+  color: #666;
+}
+
+/* =====================================================
+   EQUIPE
+   ===================================================== */
+.equipe-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.equipe-grid h3 {
+  color: #00ff88;
+  margin-bottom: 10px;
+}
+
+.equipe-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.equipe-lista li {
+  padding: 8px 14px;
+  background: #0d1117;
+  border-radius: 8px;
+  border-left: 3px solid #00a859;
+  font-size: 0.95rem;
+}
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+.footer {
+  background: #05080d;
+  text-align: center;
+  padding: 30px 20px;
+  border-top: 1px solid #00a859;
+  color: #aaa;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-logo {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.7;
+  filter: brightness(0) invert(1);
+}
+
+/* =====================================================
+   ALTO CONTRASTE
+   ===================================================== */
+body.contraste {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+body.contraste .header,
+body.contraste .footer {
+  background: #000 !important;
+  border-color: #fff !important;
+}
+
+body.contraste .card,
+body.contraste .form,
+body.contraste .game,
+body.contraste .dark-card,
+body.contraste .equipe-lista li {
+  background: #000 !important;
+  border-color: #fff !important;
+}
+
+body.contraste input,
+body.contraste select {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+
+body.contraste .section h2,
+body.contraste .dark-card h2,
+body.contraste .logo,
+body.contraste .tag,
+body.contraste .card h3,
+body.contraste .equipe-grid h3 {
+  color: #ffff00 !important;
+}
+
+body.contraste .nav-links a {
+  color: #fff !important;
+}
+
+body.contraste .btn,
+body.contraste .btn-small {
+  background: #ffff00 !important;
+  color: #000 !important;
+}
+
+body.contraste .hero {
+  background: #000 !important;
+}
+
+/* =====================================================
+   RESPONSIVO
+   ===================================================== */
+@media (max-width: 900px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    padding: 10px 0;
+  }
+
+  .nav-links.aberto {
+    display: flex;
+  }
+
+  .navbar {
+    flex-wrap: wrap;
+  }
+
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .games {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .hero h2 {
+    font-size: 2.3rem;
+  }
+
+  .dark-card {
+    padding: 40px 20px;
+  }
+
+  .equipe-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .games {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .hero h2 {
+    font-size: 1.8rem;
+  }
+
+  .form {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 400px) {
+  .games {
+    grid-template-columns: 1fr;
+  }
+}

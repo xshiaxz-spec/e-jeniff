@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — e-JINIFF</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, Helvetica, sans-serif; background: #0d1117; color: #f5f5f5; min-height: 100vh; }
+
+    /* ── Tela de Login ── */
+    .login-overlay {
+      display: none; position: fixed; inset: 0;
+      background: #0d1117; z-index: 500;
+      align-items: center; justify-content: center;
+    }
+    .login-overlay.ativo { display: flex; }
+    .login-box {
+      background: #111827; border: 1px solid #00a859;
+      border-radius: 18px; padding: 40px 36px;
+      width: 100%; max-width: 400px; text-align: center;
+    }
+    .login-logo { font-size: 2.2rem; font-weight: bold; color: #00ff88; margin-bottom: 8px; }
+    .login-box h2 { color: #f5f5f5; font-size: 1.1rem; font-weight: normal; margin-bottom: 28px; }
+    .login-box input {
+      width: 100%; background: #0d1117; color: #f5f5f5;
+      border: 1px solid #333; padding: 12px 14px;
+      border-radius: 8px; font-size: 1rem; margin-bottom: 14px;
+    }
+    .login-box input:focus { outline: none; border-color: #00ff88; }
+    .login-btn { width: 100%; padding: 13px; font-size: 1rem; background: #00a859; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .login-btn:hover { background: #00ff88; color: #0d1117; }
+    .login-erro { color: #ff4d4d; font-size: 0.88rem; margin-top: 10px; min-height: 20px; }
+
+    /* ── Header ── */
+    header { background: #05080d; border-bottom: 2px solid #00a859; padding: 18px 30px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    header h1 { color: #00ff88; font-size: 1.5rem; }
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+    #ultima-atualizacao { color: #aaa; font-size: 0.9rem; }
+
+    /* ── Botões ── */
+    .btn { border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: background 0.2s, color 0.2s; }
+    .btn-green  { background: #00a859; color: #fff; }
+    .btn-green:hover  { background: #00ff88; color: #0d1117; }
+    .btn-red    { background: transparent; color: #ff4d4d; border: 1px solid #ff4d4d; }
+    .btn-red:hover    { background: #ff4d4d; color: #fff; }
+    .btn-reset  { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+    .btn-reset:hover  { background: #ef4444; color: #fff; }
+    .btn-logout { background: transparent; color: #aaa; border: 1px solid #444; }
+    .btn-logout:hover { background: #444; color: #fff; }
+
+    /* ── Container ── */
+    .container { max-width: 1300px; margin: auto; padding: 30px 20px; }
+
+    /* ── Stats ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 36px; }
+    .stat-card { background: #111827; border: 1px solid #00a859; border-radius: 12px; padding: 20px; text-align: center; }
+    .stat-card .numero { font-size: 2.4rem; font-weight: bold; color: #00ff88; }
+    .stat-card .label  { font-size: 0.85rem; color: #aaa; margin-top: 6px; }
+
+    /* ── Filtros ── */
+    .filtros { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .filtros select, .filtros input { background: #111827; color: #f5f5f5; border: 1px solid #333; padding: 10px 14px; border-radius: 8px; font-size: 0.95rem; }
+    .filtros select:focus, .filtros input:focus { outline: 2px solid #00ff88; }
+    .filtros-acoes { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ── Tabela ── */
+    .table-wrapper { overflow-x: auto; border-radius: 14px; border: 1px solid #1f2937; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead { background: #111827; }
+    thead th { padding: 14px 14px; text-align: left; color: #00ff88; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+    tbody tr { border-top: 1px solid #1f2937; transition: background 0.15s; }
+    tbody tr:hover { background: #111827; }
+    tbody td { padding: 12px 14px; vertical-align: middle; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; background: #00a85920; color: #00ff88; border: 1px solid #00a859; }
+    .acoes-td { display: flex; gap: 6px; }
+    .btn-del, .btn-edit { padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: background 0.2s, color 0.2s; }
+    .btn-del  { background: transparent; color: #ff4d4d; border: 1px solid #ff4d4d; }
+    .btn-del:hover  { background: #ff4d4d; color: #fff; }
+    .btn-edit { background: transparent; color: #fbbf24; border: 1px solid #fbbf24; }
+    .btn-edit:hover { background: #fbbf24; color: #0d1117; }
+    .vazio   { text-align: center; padding: 50px; color: #aaa; }
+    .loading { text-align: center; padding: 40px; color: #00ff88; }
+
+    /* ── Modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.ativo { display: flex; }
+    .modal { background: #111827; border: 1px solid #00a859; border-radius: 16px; padding: 32px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; position: relative; }
+    .modal h2 { color: #00ff88; margin-bottom: 24px; font-size: 1.3rem; }
+    .modal-close { position: absolute; top: 16px; right: 18px; background: transparent; border: none; color: #aaa; font-size: 1.4rem; cursor: pointer; }
+    .modal-close:hover { color: #fff; }
+    .form-grid { display: grid; gap: 16px; }
+    .form-group { display: grid; gap: 6px; }
+    .form-group label { font-size: 0.85rem; color: #aaa; font-weight: bold; }
+    .form-group input, .form-group select { background: #0d1117; color: #f5f5f5; border: 1px solid #333; padding: 10px 12px; border-radius: 8px; font-size: 0.95rem; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #00ff88; }
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+    .modal-reset-body { text-align: center; }
+    .modal-reset-body .icone { font-size: 3rem; margin-bottom: 16px; }
+    .modal-reset-body p { color: #ccc; margin-bottom: 8px; line-height: 1.6; }
+    .modal-reset-body strong { color: #ff4d4d; }
+    .modal-reset-body .form-actions { justify-content: center; margin-top: 28px; }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; border-radius: 10px; font-weight: bold; font-size: 0.9rem; z-index: 300; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.sucesso { background: #00a85930; color: #00ff88; border: 1px solid #00a859; }
+    .toast.erro    { background: #ff4d4d20; color: #ff4d4d; border: 1px solid #ff4d4d; }
+
+    footer { text-align: center; padding: 24px; border-top: 1px solid #1f2937; color: #555; font-size: 0.85rem; margin-top: 50px; }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr 1fr; } .filtros-acoes { margin-left: 0; width: 100%; } }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div class="login-overlay ativo" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo"><img src="/img/ejiniff2026-logo.png" alt="e-JINIFF 2026" style="height:60px;width:auto;object-fit:contain;" /></div>
+    <h2>Painel Administrativo</h2>
+    <input type="password" id="loginSenha" placeholder="Digite a senha de acesso" autocomplete="current-password" />
+    <button class="login-btn" onclick="fazerLogin()">Entrar</button>
+    <div class="login-erro" id="loginErro"></div>
+  </div>
+</div>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <h1><img src="/img/ejiniff2026-logo.png" alt="e-JINIFF 2026" style="height:54px;width:auto;object-fit:contain;vertical-align:middle;" /> Painel Admin</h1>
+  <div class="header-actions">
+    <img src="/img/logo_iff.png" alt="Logo IFF" style="height:36px;width:auto;object-fit:contain;opacity:0.8;filter:brightness(0) invert(1);" />
+    <span id="ultima-atualizacao"></span>
+    <button class="btn btn-reset" onclick="abrirModalReset()">🗑️ Resetar banco</button>
+    <button class="btn btn-logout" onclick="fazerLogout()">🚪 Sair</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card">
+      <div class="numero" id="stat-total">—</div>
+      <div class="label">Total de inscrições</div>
+    </div>
+  </div>
+
+  <div class="filtros">
+    <select id="filtro-modalidade">
+      <option value="">Todas as modalidades</option>
+      <option value="lol">League of Legends</option>
+      <option value="valorant">Valorant</option>
+      <option value="cs2">Counter-Strike 2</option>
+      <option value="freefire">Free Fire</option>
+      <option value="xadrez">Xadrez Arena</option>
+    </select>
+    <input type="text" id="filtro-busca" placeholder="Buscar por nome ou matrícula..." />
+    <div class="filtros-acoes">
+      <button class="btn btn-green" onclick="exportarCSV()">⬇ Exportar CSV</button>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Nome</th><th>Matrícula</th><th>E-mail</th><th>Modalidade</th><th>Função / Info</th><th>Data</th><th>Ações</th></tr>
+      </thead>
+      <tbody id="tabela-body">
+        <tr><td colspan="8" class="loading">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<footer>© 2026 e-JINIFF — IFF Campus Quissamã</footer>
+
+<!-- ══ MODAL EDITAR ══ -->
+<div class="modal-overlay" id="modalEditar">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharModal('modalEditar')">✕</button>
+    <h2>✏️ Editar Inscrição</h2>
+    <form class="form-grid" id="formEditar" onsubmit="salvarEdicao(event)">
+      <input type="hidden" id="edit-id" />
+      <div class="form-group"><label for="edit-nome">Nome completo</label><input id="edit-nome" type="text" required /></div>
+      <div class="form-group"><label for="edit-matricula">Matrícula</label><input id="edit-matricula" type="text" required /></div>
+      <div class="form-group"><label for="edit-cpf">CPF</label><input id="edit-cpf" type="text" maxlength="14" required /></div>
+      <div class="form-group"><label for="edit-email">E-mail</label><input id="edit-email" type="email" required /></div>
+      <div class="form-group">
+        <label for="edit-modalidade">Modalidade</label>
+        <select id="edit-modalidade" required>
+          <option value="lol">League of Legends</option>
+          <option value="valorant">Valorant</option>
+          <option value="cs2">Counter-Strike 2</option>
+          <option value="freefire">Free Fire</option>
+          <option value="xadrez">Xadrez Arena</option>
+        </select>
+      </div>
+      <div class="form-group"><label for="edit-campo-extra-label">Campo extra (label)</label><input id="edit-campo-extra-label" type="text" placeholder="Ex: Rota principal" /></div>
+      <div class="form-group"><label for="edit-campo-extra-valor">Campo extra (valor)</label><input id="edit-campo-extra-valor" type="text" placeholder="Ex: Suporte" /></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-red" onclick="fecharModal('modalEditar')">Cancelar</button>
+        <button type="submit" class="btn btn-green" id="btn-salvar">Salvar alterações</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ MODAL RESET ══ -->
+<div class="modal-overlay" id="modalReset">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="fecharModal('modalReset')">✕</button>
+    <div class="modal-reset-body">
+      <div class="icone">⚠️</div>
+      <h2>Resetar banco de dados</h2>
+      <p>Esta ação irá <strong>apagar todas as inscrições</strong> permanentemente.</p>
+      <p>O banco será zerado e não há como desfazer.</p>
+      <p style="margin-top:16px">Para confirmar, digite <strong>RESETAR</strong> abaixo:</p>
+      <div class="form-group" style="margin-top:14px"><input id="input-confirma-reset" type="text" placeholder="Digite RESETAR" /></div>
+      <div class="form-actions">
+        <button class="btn btn-red" onclick="fecharModal('modalReset')">Cancelar</button>
+        <button class="btn btn-reset" onclick="confirmarReset()">Confirmar reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Token de sessão ──────────────────────────────────
+  let adminToken = sessionStorage.getItem("adminToken") || null;
+
+  const nomeModalidade = { lol:"League of Legends", valorant:"Valorant", cs2:"Counter-Strike 2", freefire:"Free Fire", xadrez:"Xadrez Arena" };
+  let todasInscricoes = [];
+
+  // ── Verifica sessão ao carregar ──────────────────────
+  window.addEventListener("DOMContentLoaded", function () {
+    if (adminToken) {
+      document.getElementById("loginOverlay").classList.remove("ativo");
+      inicializar();
+    }
+    document.getElementById("loginSenha").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") fazerLogin();
+    });
+  });
+
+  // ── Login ────────────────────────────────────────────
+  async function fazerLogin() {
+    const senha = document.getElementById("loginSenha").value;
+    const erroEl = document.getElementById("loginErro");
+    erroEl.textContent = "";
+
+    if (!senha) { erroEl.textContent = "Digite a senha."; return; }
+
+    const res = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ senha }),
+    });
+    const dados = await res.json();
+
+    if (res.ok) {
+      adminToken = dados.token;
+      sessionStorage.setItem("adminToken", adminToken);
+      document.getElementById("loginOverlay").classList.remove("ativo");
+      document.getElementById("loginSenha").value = "";
+      inicializar();
+    } else {
+      erroEl.textContent = dados.erro || "Erro ao autenticar.";
+    }
+  }
+
+  // ── Logout ───────────────────────────────────────────
+  async function fazerLogout() {
+    await fetch("/api/admin/logout", {
+      method: "POST",
+      headers: { "x-admin-token": adminToken },
+    });
+    adminToken = null;
+    sessionStorage.removeItem("adminToken");
+    todasInscricoes = [];
+    document.getElementById("tabela-body").innerHTML = "";
+    document.getElementById("loginOverlay").classList.add("ativo");
+    document.getElementById("loginSenha").value = "";
+  }
+
+  // ── Fetch autenticado ────────────────────────────────
+  async function apiFetch(url, opcoes = {}) {
+    opcoes.headers = Object.assign({ "x-admin-token": adminToken }, opcoes.headers || {});
+    const res = await fetch(url, opcoes);
+    if (res.status === 401) {
+      toast("Sessão expirada. Faça login novamente.", "erro");
+      fazerLogout();
+      throw new Error("401");
+    }
+    return res;
+  }
+
+  // ── Init ─────────────────────────────────────────────
+  function inicializar() {
+    carregarEstatisticas();
+    carregarInscricoes();
+    document.getElementById("filtro-busca").addEventListener("input", function () {
+      const termo = this.value.toLowerCase();
+      renderizarTabela(termo ? filtrarLista(todasInscricoes, termo) : todasInscricoes);
+    });
+    document.getElementById("filtro-modalidade").addEventListener("change", carregarInscricoes);
+  }
+</script>
+
+<script>
+  // ── Toast ────────────────────────────────────────────
+  function toast(texto, tipo = "sucesso") {
+    const el = document.getElementById("toast");
+    el.textContent = texto;
+    el.className = `toast ${tipo} show`;
+    setTimeout(() => el.classList.remove("show"), 3500);
+  }
+
+  // ── Modais ───────────────────────────────────────────
+  function abrirModal(id) { document.getElementById(id).classList.add("ativo"); }
+  function fecharModal(id) { document.getElementById(id).classList.remove("ativo"); }
+  document.querySelectorAll(".modal-overlay").forEach(function (o) {
+    o.addEventListener("click", function (e) { if (e.target === o) o.classList.remove("ativo"); });
+  });
+
+  // ── Estatísticas ─────────────────────────────────────
+  async function carregarEstatisticas() {
+    const res   = await fetch("/api/estatisticas");
+    const dados = await res.json();
+    document.getElementById("stat-total").textContent = dados.totalGeral;
+    const grid = document.getElementById("stats-grid");
+    grid.querySelectorAll(".stat-card:not(:first-child)").forEach(function (c) { c.remove(); });
+    dados.porModalidade.forEach(function (m) {
+      const card = document.createElement("div");
+      card.className = "stat-card";
+      card.innerHTML = `<div class="numero">${m.total}</div><div class="label">${nomeModalidade[m.modalidade] || m.modalidade}</div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  // ── Inscrições ───────────────────────────────────────
+  async function carregarInscricoes() {
+    const modalidade = document.getElementById("filtro-modalidade").value;
+    const url = modalidade ? `/api/inscricoes?modalidade=${modalidade}` : "/api/inscricoes";
+    try {
+      const res = await apiFetch(url);
+      todasInscricoes = await res.json();
+      document.getElementById("ultima-atualizacao").textContent = "Atualizado: " + new Date().toLocaleTimeString("pt-BR");
+      const busca = document.getElementById("filtro-busca").value.toLowerCase();
+      renderizarTabela(busca ? filtrarLista(todasInscricoes, busca) : todasInscricoes);
+    } catch {}
+  }
+
+  function filtrarLista(lista, termo) {
+    return lista.filter(function (i) { return i.nome.toLowerCase().includes(termo) || i.matricula.toLowerCase().includes(termo); });
+  }
+
+  function renderizarTabela(lista) {
+    const tbody = document.getElementById("tabela-body");
+    if (lista.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="vazio">Nenhuma inscrição encontrada.</td></tr>`; return; }
+    tbody.innerHTML = lista.map(function (i) {
+      return `<tr>
+        <td>${i.id}</td><td>${esc(i.nome)}</td><td>${esc(i.matricula)}</td><td>${esc(i.email)}</td>
+        <td><span class="badge">${nomeModalidade[i.modalidade] || i.modalidade}</span></td>
+        <td>${i.campo_extra_label ? `<strong>${esc(i.campo_extra_label)}:</strong> ${esc(i.campo_extra_valor)}` : "—"}</td>
+        <td>${new Date(i.data_inscricao).toLocaleString("pt-BR")}</td>
+        <td><div class="acoes-td">
+          <button class="btn-edit" onclick="abrirEdicao(${i.id})">✏️ Editar</button>
+          <button class="btn-del"  onclick="deletar(${i.id})">🗑️ Remover</button>
+        </div></td>
+      </tr>`;
+    }).join("");
+  }
+
+  function esc(str) {
+    if (!str) return "";
+    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  // ── Deletar ──────────────────────────────────────────
+  async function deletar(id) {
+    if (!confirm("Remover esta inscrição permanentemente?")) return;
+    try {
+      const res = await apiFetch(`/api/inscricoes/${id}`, { method: "DELETE" });
+      if (res.ok) { toast("Inscrição removida."); await carregarInscricoes(); await carregarEstatisticas(); }
+      else { const d = await res.json(); toast("❌ " + d.erro, "erro"); }
+    } catch {}
+  }
+
+  // ── Editar ───────────────────────────────────────────
+  function abrirEdicao(id) {
+    const i = todasInscricoes.find(function (x) { return x.id === id; });
+    if (!i) return;
+    document.getElementById("edit-id").value                = i.id;
+    document.getElementById("edit-nome").value              = i.nome;
+    document.getElementById("edit-matricula").value         = i.matricula;
+    document.getElementById("edit-cpf").value               = i.cpf;
+    document.getElementById("edit-email").value             = i.email;
+    document.getElementById("edit-modalidade").value        = i.modalidade;
+    document.getElementById("edit-campo-extra-label").value = i.campo_extra_label || "";
+    document.getElementById("edit-campo-extra-valor").value = i.campo_extra_valor || "";
+    abrirModal("modalEditar");
+  }
+
+  async function salvarEdicao(e) {
+    e.preventDefault();
+    const id = document.getElementById("edit-id").value;
+    const payload = {
+      nome: document.getElementById("edit-nome").value.trim(),
+      matricula: document.getElementById("edit-matricula").value.trim(),
+      cpf: document.getElementById("edit-cpf").value.trim(),
+      email: document.getElementById("edit-email").value.trim(),
+      modalidade: document.getElementById("edit-modalidade").value,
+      campoExtraLabel: document.getElementById("edit-campo-extra-label").value.trim() || null,
+      campoExtraValor: document.getElementById("edit-campo-extra-valor").value.trim() || null,
+    };
+    const btn = document.getElementById("btn-salvar");
+    btn.disabled = true; btn.textContent = "Salvando...";
+    try {
+      const res = await apiFetch(`/api/inscricoes/${id}`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) });
+      const dados = await res.json();
+      if (res.ok) { toast("✅ Inscrição atualizada!"); fecharModal("modalEditar"); await carregarInscricoes(); await carregarEstatisticas(); }
+      else { toast("❌ " + (dados.erro || "Erro ao salvar."), "erro"); }
+    } catch {} finally { btn.disabled = false; btn.textContent = "Salvar alterações"; }
+  }
+
+  // ── Reset ────────────────────────────────────────────
+  function abrirModalReset() { document.getElementById("input-confirma-reset").value = ""; abrirModal("modalReset"); }
+
+  async function confirmarReset() {
+    if (document.getElementById("input-confirma-reset").value.trim() !== "RESETAR") { toast("Digite RESETAR para confirmar.", "erro"); return; }
+    try {
+      const res = await apiFetch("/api/reset", { method: "DELETE" });
+      if (res.ok) { toast("🗑️ Banco resetado com sucesso."); fecharModal("modalReset"); await carregarInscricoes(); await carregarEstatisticas(); }
+      else { toast("Erro ao resetar o banco.", "erro"); }
+    } catch {}
+  }
+
+  // ── Exportar CSV ─────────────────────────────────────
+  function exportarCSV() {
+    const busca = document.getElementById("filtro-busca").value.toLowerCase();
+    const lista = busca ? filtrarLista(todasInscricoes, busca) : todasInscricoes;
+    const cab = ["ID","Nome","Matrícula","CPF","E-mail","Modalidade","Função/Info","Data"];
+    const linhas = lista.map(function (i) { return [i.id,`"${i.nome}"`,i.matricula,i.cpf,i.email,nomeModalidade[i.modalidade]||i.modalidade,i.campo_extra_label?`${i.campo_extra_label}: ${i.campo_extra_valor}`:"",new Date(i.data_inscricao).toLocaleString("pt-BR")]; });
+    const csv = [cab,...linhas].map(function (r) { return r.join(";"); }).join("\n");
+    const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "inscricoes-ejiniff.csv"; link.click();
+  }
+</script>
+</body>
+</html>
