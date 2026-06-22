@@ -25,9 +25,9 @@ npm start
 
 Você verá no terminal:
 ```
-✅ Servidor rodando em http://localhost:3000
-📋 Admin: http://localhost:3000/admin
-🎮 Site:  http://localhost:3000/Index.html
+✅ Servidor rodando em https://e-jeniff.onrender.com
+📋 Admin: https://e-jeniff.onrender.com/admin
+🎮 Site:  https://e-jeniff.onrender.com/Index.html
 ```
 
 ---
