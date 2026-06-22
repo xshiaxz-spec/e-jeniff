@@ -36,10 +36,10 @@ Você verá no terminal:
 
 | O quê | Endereço |
 |---|---|
-| Site principal | http://localhost:3000/Index.html |
-| Painel admin | http://localhost:3000/admin |
-| API inscrições | http://localhost:3000/api/inscricoes |
-| Estatísticas | http://localhost:3000/api/estatisticas |
+| Site principal | https://e-jeniff.onrender.com/Index.html |
+| Painel admin | https://e-jeniff.onrender.com/admin |
+| API inscrições | https://e-jeniff.onrender.com/api/inscricoes |
+| Estatísticas | https://e-jeniff.onrender.com/api/estatisticas |
 
 ---
 
