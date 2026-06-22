@@ -3,11 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Jogos Internos e-JINIFF — Projeto de esportes eletrônicos do IFF Campus Quissamã." />
-  <title>Jogos Internos e-JINIFF</title>
+  <meta name="description" content="Jogos Internos e-JINIFF — Esportes eletrônicos no IFF Campus Quissamã. Inscreva-se nas modalidades de CS2, Valorant, LoL, Free Fire e Xadrez." />
+  <meta name="theme-color" content="#050c12" />
+  <title>e-JINIFF 2026 — IFF Campus Quissamã</title>
+  <link rel="icon" type="image/png" href="img/ejiniff2026-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="Styles.css" />
 </head>
 <body>
+
+  <!-- Barra de progresso de scroll -->
+  <div id="scroll-progress" aria-hidden="true"></div>
+
+  <!-- Botão scroll to top -->
+  <button id="scroll-top" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+
+  <!-- Canvas de confete (oculto até usar) -->
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Cursor personalizado -->
+  <div id="cursor-dot" aria-hidden="true"></div>
+  <div id="cursor-ring" aria-hidden="true"></div>
+
+  <!-- HEADER -->
   <header class="header">
     <nav class="navbar" aria-label="Navegação principal">
       <div class="navbar-brand">
@@ -15,9 +34,7 @@
         <img src="img/ejiniff2026-logo.png" alt="e-JINIFF 2026" class="logo-ejiniff" />
       </div>
 
-      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">
-        &#9776;
-      </button>
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">&#9776;</button>
 
       <ul class="nav-links" id="navLinks">
         <li><a href="#sobre">Sobre</a></li>
@@ -25,90 +42,138 @@
         <li><a href="#modalidades">Modalidades</a></li>
         <li><a href="#inscricao">Inscrição</a></li>
         <li><a href="#equipe">Equipe</a></li>
+        <li><a href="#localizacao">Localização</a></li>
       </ul>
 
-      <button id="contrasteBtn" class="btn-small" aria-label="Alternar alto contraste">Alto contraste</button>
+      <button id="contrasteBtn" class="btn-small" aria-label="Alternar alto contraste">⚡ Contraste</button>
     </nav>
   </header>
 
   <main>
-    <!-- Hero -->
+
+    <!-- HERO -->
     <section class="hero" aria-label="Apresentação">
+      <canvas id="hero-particles" aria-hidden="true"></canvas>
       <div class="hero-content">
         <img src="img/logo_iff.png" alt="Logo IFF Campus Quissamã" class="hero-logo" />
         <span class="tag">Instituto Federal Fluminense — Campus Quissamã</span>
-        <h2>Jogos Internos e-JINIFF</h2>
+        <h2>Jogos Internos<br>e-JINIFF 2026</h2>
         <p>
-          Projeto de pesquisa e extensão voltado para esportes eletrônicos,
-          integração estudantil, treino e seletivas para representação do campus.
+          Esportes eletrônicos, integração estudantil e competitividade saudável.
+          Participe das seletivas e represente o campus.
         </p>
-        <a href="#inscricao" class="btn">Inscreva-se</a>
-      </div>
-    </section>
-
-    <!-- Sobre -->
-    <section id="sobre" class="section">
-      <h2>Sobre o Projeto</h2>
-      <p>
-        O projeto Jogos Internos e-JINIFF tem como finalidade criar uma versão
-        eletrônica dos jogos internos, utilizando plataformas digitais e jogos
-        competitivos para incentivar a participação dos alunos.
-      </p>
-      <p>
-        A proposta busca unir diversão, interação social e desenvolvimento de
-        habilidades como comunicação, estratégia, cooperação e competitividade
-        saudável.
-      </p>
-    </section>
-
-    <!-- Objetivos -->
-    <section id="objetivos" class="section dark-card">
-      <h2>Nossas Propostas</h2>
-      <div class="grid">
-        <div class="card">
-          <h3>🤝 Integração</h3>
-          <p>Promover interação entre estudantes por meio dos jogos eletrônicos.</p>
-        </div>
-        <div class="card">
-          <h3>🎯 Treinamento</h3>
-          <p>Criar oportunidades de treino e desenvolvimento para os participantes.</p>
-        </div>
-        <div class="card">
-          <h3>🏆 Competitividade saudável</h3>
-          <p>Estimular o trabalho em equipe e o espírito competitivo de forma positiva.</p>
-        </div>
-        <div class="card">
-          <h3>💻 Tecnologia e educação</h3>
-          <p>Incentivar a participação em atividades tecnológicas e criativas.</p>
+        <div class="hero-btns">
+          <a href="#inscricao" class="btn">Inscreva-se agora</a>
+          <a href="#modalidades" class="btn-outline">Ver modalidades</a>
         </div>
       </div>
     </section>
 
-    <!-- Modalidades -->
+    <!-- STATS BAR -->
+    <div class="stats-bar" aria-label="Números do evento">
+      <div class="stats-bar-inner">
+        <div class="stat-item">
+          <span class="stat-number">5</span>
+          <span class="stat-label">Modalidades</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" id="stat-total">—</span>
+          <span class="stat-label">Inscritos</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">2026</span>
+          <span class="stat-label">Edição</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Gratuito</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOBRE -->
+    <section id="sobre" class="section fade-up">
+      <div class="section-header">
+        <span class="section-badge">📋 Sobre o projeto</span>
+        <h2>O que é o <span>e-JINIFF</span>?</h2>
+        <div class="divider"></div>
+      </div>
+      <p>
+        O e-JINIFF é uma competição de jogos eletrônicos realizada entre os campi do Instituto
+        Federal Fluminense (IFF). O evento promove a integração entre os estudantes por meio de
+        disputas em diferentes modalidades de jogos, incentivando o trabalho em equipe, o raciocínio
+        estratégico, a comunicação e a competitividade saudável.
+      </p>
+      <p>
+        Além de proporcionar momentos de lazer e interação, o e-JINIFF fortalece os laços entre a
+        comunidade acadêmica e amplia a participação estudantil em atividades esportivas e culturais
+        no ambiente digital.
+      </p>
+    </section>
+
+    <!-- OBJETIVOS -->
+    <div class="section-alt" id="objetivos">
+      <div class="section-inner">
+        <div class="section-header fade-up">
+          <span class="section-badge">🎯 Nossas propostas</span>
+          <h2>Por que <span>participar</span>?</h2>
+          <div class="divider"></div>
+        </div>
+        <div class="grid">
+          <div class="card fade-up">
+            <span class="card-icon">🤝</span>
+            <h3>Integração</h3>
+            <p>Promova conexões reais entre estudantes através de experiências competitivas compartilhadas.</p>
+          </div>
+          <div class="card fade-up">
+            <span class="card-icon">🎯</span>
+            <h3>Treinamento</h3>
+            <p>Desenvolva habilidades técnicas e mentais com treinos organizados e acompanhamento.</p>
+          </div>
+          <div class="card fade-up">
+            <span class="card-icon">🏆</span>
+            <h3>Competição saudável</h3>
+            <p>Estimule o espírito de equipe e a competitividade de forma positiva e respeitosa.</p>
+          </div>
+          <div class="card fade-up">
+            <span class="card-icon">💻</span>
+            <h3>Tecnologia e educação</h3>
+            <p>Explore o universo dos esportes eletrônicos aliado ao aprendizado técnico e criativo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODALIDADES -->
     <section id="modalidades" class="section">
-      <h2>Modalidades</h2>
+      <div class="section-header fade-up">
+        <span class="section-badge">🎮 Jogos disponíveis</span>
+        <h2>Escolha sua <span>modalidade</span></h2>
+        <p class="section-sub">Clique em um jogo para selecionar a modalidade e ir direto para o formulário de inscrição.</p>
+        <div class="divider"></div>
+      </div>
       <div class="games">
-        <div class="game" data-modalidade="cs2" role="button" tabindex="0" aria-label="Selecionar Counter-Strike 2">
+        <div class="game fade-up" data-modalidade="cs2" role="button" tabindex="0" aria-label="Selecionar Counter-Strike 2">
           <img src="img/ejiniff2026-cs.png" alt="Counter-Strike 2" class="game-img" />
           <span class="game-nome">Counter-Strike 2</span>
           <span class="game-inscritos" id="inscritos-cs2">— inscritos</span>
         </div>
-        <div class="game" data-modalidade="valorant" role="button" tabindex="0" aria-label="Selecionar Valorant">
+        <div class="game fade-up" data-modalidade="valorant" role="button" tabindex="0" aria-label="Selecionar Valorant">
           <img src="img/ejiniff2026-val.png" alt="Valorant" class="game-img" />
           <span class="game-nome">Valorant</span>
           <span class="game-inscritos" id="inscritos-valorant">— inscritos</span>
         </div>
-        <div class="game" data-modalidade="lol" role="button" tabindex="0" aria-label="Selecionar League of Legends">
+        <div class="game fade-up" data-modalidade="lol" role="button" tabindex="0" aria-label="Selecionar League of Legends">
           <img src="img/ejiniff2026-ll.png" alt="League of Legends" class="game-img" />
           <span class="game-nome">League of Legends</span>
           <span class="game-inscritos" id="inscritos-lol">— inscritos</span>
         </div>
-        <div class="game" data-modalidade="freefire" role="button" tabindex="0" aria-label="Selecionar Free Fire">
+        <div class="game fade-up" data-modalidade="freefire" role="button" tabindex="0" aria-label="Selecionar Free Fire">
           <img src="img/ejiniff2026-ff.png" alt="Free Fire" class="game-img" />
           <span class="game-nome">Free Fire</span>
           <span class="game-inscritos" id="inscritos-freefire">— inscritos</span>
         </div>
-        <div class="game" data-modalidade="xadrez" role="button" tabindex="0" aria-label="Selecionar Xadrez Arena">
+        <div class="game fade-up" data-modalidade="xadrez" role="button" tabindex="0" aria-label="Selecionar Xadrez Arena">
           <img src="img/ejiniff2026-xa.png" alt="Xadrez Arena" class="game-img" />
           <span class="game-nome">Xadrez Arena</span>
           <span class="game-inscritos" id="inscritos-xadrez">— inscritos</span>
@@ -116,97 +181,264 @@
       </div>
     </section>
 
-    <!-- Acessibilidade -->
-    <section class="section dark-card" aria-label="Acessibilidade">
-      <h2>Acessibilidade</h2>
-      <p>
-        O site conta com recursos pensados para inclusão, como botão de alto
-        contraste, estrutura com campos identificados e integração com VLibras,
-        auxiliando estudantes surdos no acesso às informações.
-      </p>
-    </section>
-
-    <!-- Inscrição -->
-    <section id="inscricao" class="section">
-      <h2>Formulário de Inscrição</h2>
-
-      <form class="form" id="formInscricao" novalidate>
-        <label for="nome">
-          Nome completo
-          <input id="nome" type="text" placeholder="Digite seu nome completo" required autocomplete="name" />
-        </label>
-
-        <label for="matricula">
-          Matrícula
-          <input id="matricula" type="text" placeholder="Digite sua matrícula" required />
-        </label>
-
-        <label for="cpf">
-          CPF
-          <input id="cpf" type="text" placeholder="000.000.000-00" maxlength="14" required />
-        </label>
-
-        <label for="email">
-          E-mail
-          <input id="email" type="email" placeholder="seuemail@exemplo.com" required autocomplete="email" />
-        </label>
-
-        <label for="modalidade">
-          Modalidade de interesse
-          <select id="modalidade" required>
-            <option value="">Selecione uma modalidade</option>
-            <option value="lol">League of Legends</option>
-            <option value="valorant">Valorant</option>
-            <option value="cs2">Counter-Strike 2</option>
-            <option value="freefire">Free Fire</option>
-            <option value="xadrez">Xadrez Arena</option>
-          </select>
-        </label>
-
-        <div id="campo-extra" aria-live="polite"></div>
-
-        <button type="submit" class="btn">Enviar inscrição</button>
-      </form>
-
-      <div id="confirmacao-inscricao" class="confirmacao" aria-live="polite" hidden>
-        <div class="confirmacao-box">
-          <span class="confirmacao-icon">✅</span>
+    <!-- ACESSIBILIDADE -->
+    <div class="section-alt" aria-label="Acessibilidade">
+      <div class="section-inner fade-up">
+        <div class="feature-card">
+          <div class="feature-icon-wrap" aria-hidden="true">♿</div>
           <div>
-            <strong>Inscrição realizada!</strong>
-            <p id="confirmacao-texto"></p>
+            <h3>Comprometidos com a acessibilidade</h3>
+            <p>
+              O site conta com recursos pensados para inclusão: botão de alto contraste para baixa visão,
+              estrutura semântica com campos identificados para leitores de tela, e integração com o
+              VLibras — auxiliando estudantes surdos no acesso a todas as informações do evento.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSCRIÇÃO -->
+    <section id="inscricao" class="section" data-theme="default">
+      <div class="section-header fade-up">
+        <span class="section-badge">📝 Participe</span>
+        <h2>Formulário de <span>Inscrição</span></h2>
+        <div class="divider"></div>
+      </div>
+
+      <div class="inscricao-layout">
+        <div class="inscricao-info fade-up">
+          <h3>Como funciona?</h3>
+          <p>
+            Preencha o formulário ao lado com seus dados e selecione a modalidade desejada.
+            Após o envio, você receberá um e-mail de confirmação.
+          </p>
+          <div class="info-steps">
+            <div class="info-step">
+              <span class="step-num">1</span>
+              Preencha seus dados pessoais
+            </div>
+            <div class="info-step">
+              <span class="step-num">2</span>
+              Escolha a modalidade que deseja disputar
+            </div>
+            <div class="info-step">
+              <span class="step-num">3</span>
+              Informe sua função/posição no jogo
+            </div>
+            <div class="info-step">
+              <span class="step-num">4</span>
+              Envie e aguarde a confirmação por e-mail
+            </div>
+          </div>
+        </div>
+
+        <div class="fade-up">
+          <form class="form" id="formInscricao" novalidate>
+            <label for="nome">
+              Nome completo
+              <div class="input-wrapper">
+                <input id="nome" type="text" placeholder="Digite seu nome completo" required autocomplete="name" />
+                <span class="input-status" id="status-nome" aria-hidden="true"></span>
+              </div>
+            </label>
+
+            <label for="matricula">
+              Matrícula
+              <div class="input-wrapper">
+                <input id="matricula" type="text" placeholder="Digite sua matrícula" required />
+                <span class="input-status" id="status-matricula" aria-hidden="true"></span>
+              </div>
+            </label>
+
+            <label for="cpf">
+              CPF
+              <div class="input-wrapper">
+                <input id="cpf" type="text" placeholder="000.000.000-00" maxlength="14" required />
+                <span class="input-status" id="status-cpf" aria-hidden="true"></span>
+              </div>
+            </label>
+
+            <label for="email">
+              E-mail institucional
+              <div class="input-wrapper">
+                <input id="email" type="email" placeholder="seuemail@exemplo.com" required autocomplete="email" />
+                <span class="input-status" id="status-email" aria-hidden="true"></span>
+              </div>
+            </label>
+
+            <label for="modalidade">
+              Modalidade de interesse
+              <select id="modalidade" required>
+                <option value="">Selecione uma modalidade</option>
+                <option value="lol">League of Legends</option>
+                <option value="valorant">Valorant</option>
+                <option value="cs2">Counter-Strike 2</option>
+                <option value="freefire">Free Fire</option>
+                <option value="xadrez">Xadrez Arena</option>
+              </select>
+            </label>
+
+            <div id="campo-extra" aria-live="polite"></div>
+
+            <button type="submit" class="btn" style="justify-content: center;">Enviar inscrição →</button>
+          </form>
+
+          <div id="confirmacao-inscricao" class="confirmacao" aria-live="polite" hidden>
+            <div class="confirmacao-box">
+              <span class="confirmacao-icon">✅</span>
+              <div>
+                <strong>Inscrição realizada com sucesso!</strong>
+                <p id="confirmacao-texto"></p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Equipe -->
-    <section id="equipe" class="section dark-card">
-      <h2>Equipe do Projeto</h2>
-      <div class="equipe-grid">
-        <div>
-          <h3>Integrantes</h3>
-          <ul class="equipe-lista">
-            <li>Davi Barbosa</li>
-            <li>Henri Souza</li>
-            <li>Gabriel Almeida</li>
-            <li>Lucas Nunes</li>
-            <li>Bruno Correa</li>
-          </ul>
+    <!-- EQUIPE -->
+    <div class="section-alt" id="equipe">
+      <div class="section-inner">
+        <div class="section-header fade-up">
+          <span class="section-badge">👥 Quem somos</span>
+          <h2>Equipe do <span>Projeto</span></h2>
+          <div class="divider"></div>
         </div>
-        <div>
-          <h3>Docentes</h3>
-          <ul class="equipe-lista">
-            <li>Prof. Gabriel Marques</li>
-            <li>Prof. Orlando</li>
-          </ul>
+
+        <!-- Alunos -->
+        <div class="equipe-grupo-label fade-up">Alunos</div>
+        <div class="equipe-members fade-up">
+
+          <div class="member-card">
+            <div class="member-avatar" data-initials="DB" data-hue="158"></div>
+            <div class="member-info">
+              <span class="member-name">Davi Barbosa</span>
+              <span class="member-tag member-tag--dev">💻 Desenvolvedor</span>
+            </div>
+          </div>
+
+          <div class="member-card">
+            <div class="member-avatar" data-initials="BC" data-hue="172"></div>
+            <div class="member-info">
+              <span class="member-name">Bruno Correa</span>
+              <span class="member-tag member-tag--dev">💻 Desenvolvedor</span>
+            </div>
+          </div>
+
+          <div class="member-card">
+            <div class="member-avatar" data-initials="HS" data-hue="200"></div>
+            <div class="member-info">
+              <span class="member-name">Henri Souza</span>
+              <span class="member-tag member-tag--research">🔬 Pesquisa & Aplicação</span>
+            </div>
+          </div>
+
+          <div class="member-card">
+            <div class="member-avatar" data-initials="GA" data-hue="220"></div>
+            <div class="member-info">
+              <span class="member-name">Gabriel Almeida</span>
+              <span class="member-tag member-tag--research">🔬 Pesquisa & Aplicação</span>
+            </div>
+          </div>
+
+          <div class="member-card">
+            <div class="member-avatar" data-initials="LN" data-hue="240"></div>
+            <div class="member-info">
+              <span class="member-name">Lucas Nunes</span>
+              <span class="member-tag member-tag--research">🔬 Pesquisa & Aplicação</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Docentes -->
+        <div class="equipe-grupo-label fade-up" style="margin-top: 40px;">Orientadores</div>
+        <div class="equipe-members equipe-members--orientadores fade-up">
+
+          <div class="member-card member-card--orientador">
+            <div class="member-avatar member-avatar--orientador" data-initials="GM" data-hue="45"></div>
+            <div class="member-info">
+              <span class="member-name">Prof. Gabriel Marques</span>
+              <span class="member-tag member-tag--orientador">🎓 Orientador</span>
+            </div>
+          </div>
+
+          <div class="member-card member-card--orientador">
+            <div class="member-avatar member-avatar--orientador" data-initials="Or" data-hue="35"></div>
+            <div class="member-info">
+              <span class="member-name">Prof. Orlando</span>
+              <span class="member-tag member-tag--orientador">🎓 Orientador</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+    <!-- LOCALIZAÇÃO -->
+    <section id="localizacao" class="section fade-up">
+      <div class="section-header">
+        <span class="section-badge">📍 Onde estamos</span>
+        <h2>Localização do <span>Campus</span></h2>
+        <div class="divider"></div>
+      </div>
+      <div class="localizacao-layout">
+        <div class="localizacao-info">
+          <div class="localizacao-detail">
+            <span class="localizacao-icon">🏫</span>
+            <div>
+              <strong>IFF Campus Quissamã</strong>
+              <span>Instituto Federal Fluminense</span>
+            </div>
+          </div>
+          <div class="localizacao-detail">
+            <span class="localizacao-icon">📌</span>
+            <div>
+              <strong>Endereço</strong>
+              <span>Av. Amilcar Pereira da Silva, 727<br>Piteiras, Quissamã — RJ, CEP 28735-000</span>
+            </div>
+          </div>
+          <div class="localizacao-detail">
+            <span class="localizacao-icon">🚗</span>
+            <div>
+              <strong>Como chegar</strong>
+              <span>A ~3h do Rio de Janeiro pela BR-101 Norte, próximo ao centro de Quissamã.</span>
+            </div>
+          </div>
+          <a
+            href="https://maps.google.com/?q=Av.+Amilcar+Pereira+da+Silva,+727,+Piteiras,+Quissamã,+RJ"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn"
+            style="margin-top: 8px; width: fit-content;"
+          >
+            Abrir no Google Maps →
+          </a>
+        </div>
+        <div class="localizacao-mapa">
+          <iframe
+            title="Mapa IFF Campus Quissamã"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3716.2!2d-41.4694!3d-22.1053!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x97178a2b8f2f2f2f%3A0x0!2sAv.%20Amilcar%20Pereira%20da%20Silva%2C%20727%20-%20Piteiras%2C%20Quissam%C3%A3%20-%20RJ%2C%2028735-000!5e0!3m2!1spt-BR!2sbr!4v1700000000000"
+            width="100%" height="100%"
+            style="border:0;" allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
         </div>
       </div>
     </section>
-  </main>
 
+  <!-- FOOTER -->
   <footer class="footer">
-    <img src="img/logo_iff.png" alt="Logo IFF" class="footer-logo" />
-    <p>© 2026 Jogos Internos e-JINIFF — IFF Campus Quissamã</p>
+    <div class="footer-inner">
+      <img src="img/logo_iff.png" alt="Logo IFF" class="footer-logo" />
+      <p class="footer-text">
+        © 2026 Jogos Internos e-JINIFF — <a href="#">IFF Campus Quissamã</a><br />
+        Projeto de Pesquisa e Extensão · Instituto Federal Fluminense
+      </p>
+    </div>
   </footer>
 
   <!-- VLibras -->

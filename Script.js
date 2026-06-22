@@ -12,25 +12,67 @@ const cpfInput         = document.getElementById("cpf");
 // -------------------------------------------------------
 // 1. Contador de inscrições por modalidade nos cards
 // -------------------------------------------------------
+
+// Ativa skeleton nos badges de inscritos antes de carregar
+function mostrarSkeletonContadores() {
+  document.querySelectorAll(".game-inscritos").forEach(function (el) {
+    el.innerHTML = '<span class="skeleton-badge"></span>';
+    el.classList.add("skeleton-loading");
+  });
+  const statTotal = document.getElementById("stat-total");
+  if (statTotal) {
+    statTotal.innerHTML = '<span class="skeleton-stat"></span>';
+    statTotal.classList.add("skeleton-loading");
+  }
+}
+
 async function carregarContadores() {
+  mostrarSkeletonContadores();
   try {
     const res   = await fetch("/api/estatisticas");
-    if (!res.ok) return;
+    if (!res.ok) {
+      // servidor offline — limpa skeleton com fallback
+      document.querySelectorAll(".game-inscritos").forEach(function (el) {
+        el.classList.remove("skeleton-loading");
+        el.textContent = "— inscritos";
+      });
+      const statTotal = document.getElementById("stat-total");
+      if (statTotal) { statTotal.classList.remove("skeleton-loading"); statTotal.textContent = "—"; }
+      return;
+    }
     const dados = await res.json();
 
     // Zera todos primeiro
     document.querySelectorAll(".game-inscritos").forEach(function (el) {
+      el.classList.remove("skeleton-loading");
       el.textContent = "0 inscritos";
     });
 
+    let total = 0;
     dados.porModalidade.forEach(function (m) {
+      total += m.total;
       const el = document.getElementById("inscritos-" + m.modalidade);
       if (el) {
+        el.classList.remove("skeleton-loading");
         el.textContent = m.total + (m.total === 1 ? " inscrito" : " inscritos");
       }
     });
+
+    // Atualiza stat total no hero
+    const statTotal = document.getElementById("stat-total");
+    if (statTotal) {
+      statTotal.classList.remove("skeleton-loading");
+      statTotal.textContent = total > 0 ? total : "0";
+    }
+
   } catch {
-    // Servidor offline — ignora silenciosamente
+    // Servidor offline — remove skeleton silenciosamente
+    document.querySelectorAll(".game-inscritos").forEach(function (el) {
+      el.classList.remove("skeleton-loading");
+      el.textContent = "— inscritos";
+    });
+    const statTotal = document.getElementById("stat-total");
+    if (statTotal) { statTotal.classList.remove("skeleton-loading"); statTotal.textContent = "—"; }
   }
 }
 
@@ -69,7 +111,7 @@ const observerFade = new IntersectionObserver(function (entries) {
   });
 }, { threshold: 0.1 });
 
-document.querySelectorAll(".section, .dark-card").forEach(function (el) {
+document.querySelectorAll(".fade-up").forEach(function (el) {
   observerFade.observe(el);
 });
 
@@ -148,6 +190,72 @@ cpfInput.addEventListener("input", function () {
 });
 
 // -------------------------------------------------------
+// Tooltips de ajuda por modalidade
+// -------------------------------------------------------
+const tooltipsAjuda = {
+  lol: {
+    titulo: "Rotas no LoL",
+    itens: [
+      { nome: "Topo",    desc: "Jogador da rota superior, geralmente tanques ou lutadores." },
+      { nome: "Selva",   desc: "Controla o mapa, faz objetivos e dá suporte às rotas (jungler)." },
+      { nome: "Meio",    desc: "Rota central, mages ou assassinos que dominam o meio do mapa." },
+      { nome: "ADC",     desc: "Atirador da rota inferior, faz dano físico a distância no late game." },
+      { nome: "Suporte", desc: "Acompanha o ADC, protege aliados e controla visão do mapa." },
+    ],
+  },
+  valorant: {
+    titulo: "Agentes no Valorant",
+    itens: [
+      { nome: "Duelista",    desc: "Entra primeiro e cria espaço — ex: Jett, Reyna, Neon." },
+      { nome: "Controlador", desc: "Fecha visão com smokes e controla o mapa — ex: Brimstone, Omen." },
+      { nome: "Iniciador",   desc: "Abre jogadas e reúne informação — ex: Sova, Breach, Fade." },
+      { nome: "Sentinela",   desc: "Defende flancos e âncora a equipe — ex: Sage, Killjoy, Cypher." },
+    ],
+  },
+  cs2: {
+    titulo: "Funções no CS2",
+    itens: [
+      { nome: "IGL",          desc: "In-Game Leader — lidera estratégias e calls durante a partida." },
+      { nome: "AWPer",        desc: "Especialista na sniper AWP, responsável por picks e controle de distância." },
+      { nome: "Entry Fragger",desc: "Entra primeiro no site para abrir o round para a equipe." },
+      { nome: "Support",      desc: "Usa granadas e utilitários para apoiar entradas e plays." },
+      { nome: "Lurker",       desc: "Age separado do time, flanqueia e pressiona o adversário." },
+    ],
+  },
+  freefire: {
+    titulo: "Funções no Free Fire",
+    itens: [
+      { nome: "Rushador", desc: "Avança e pressiona inimigos em combate próximo." },
+      { nome: "Suporte",  desc: "Cura aliados e fornece cobertura durante a partida." },
+      { nome: "Atirador", desc: "Faz dano a longa distância com rifles e snipers." },
+      { nome: "Capitão",  desc: "Lidera o squad, define rotações e decisões táticas." },
+    ],
+  },
+};
+
+// -------------------------------------------------------
+// Abre/fecha tooltip ao clicar no botão "?"
+// -------------------------------------------------------
+function configurarTooltip(btn) {
+  btn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    btn.classList.toggle("ativo");
+    var tooltip = btn.querySelector(".help-tooltip");
+    if (tooltip) {
+      tooltip.style.display = btn.classList.contains("ativo") ? "block" : "none";
+    }
+  });
+}
+
+document.addEventListener("click", function () {
+  document.querySelectorAll(".help-btn.ativo").forEach(function (btn) {
+    btn.classList.remove("ativo");
+    var tooltip = btn.querySelector(".help-tooltip");
+    if (tooltip) tooltip.style.display = "none";
+  });
+});
+
+// -------------------------------------------------------
 // Campo extra dinâmico por modalidade
 // -------------------------------------------------------
 modalidadeSelect.addEventListener("change", function () {
@@ -180,15 +288,43 @@ modalidadeSelect.addEventListener("change", function () {
     return `<option value="${o}">${o}</option>`;
   }).join("");
 
+  // Monta os itens do tooltip para este jogo
+  const infoJogo = tooltipsAjuda[jogo];
+  const tooltipItensHtml = infoJogo
+    ? infoJogo.itens.map(function (item) {
+        return `<div class="help-tooltip-item">
+          <strong>${item.nome}</strong>
+          <span>${item.desc}</span>
+        </div>`;
+      }).join("")
+    : "";
+
+  const tooltipHtml = infoJogo
+    ? `<button type="button" class="help-btn" aria-label="O que é cada opção?" tabindex="0">
+        ?
+        <div class="help-tooltip" role="tooltip">
+          <div class="help-tooltip-title">${infoJogo.titulo}</div>
+          ${tooltipItensHtml}
+        </div>
+      </button>`
+    : "";
+
   campoExtra.innerHTML = `
     <label for="campoExtraValor">
-      ${label}
+      <span class="label-with-help">
+        ${label}
+        ${tooltipHtml}
+      </span>
       <select id="campoExtraValor" name="campoExtraValor" required>
         <option value="">Selecione</option>
         ${opcoesHtml}
       </select>
     </label>
   `;
+
+  // Ativa o comportamento de toggle no botão recém-criado
+  var btn = campoExtra.querySelector(".help-btn");
+  if (btn) configurarTooltip(btn);
 
   if (jogo === "freefire") {
     campoExtra.innerHTML += `
@@ -335,6 +471,9 @@ function mostrarConfirmacao(email, modalidade) {
   div.hidden = false;
   div.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
+  // Dispara o confete
+  dispararConfete();
+
   setTimeout(function () { div.hidden = true; }, 10000);
 }
 
@@ -372,3 +511,346 @@ contrasteBtn.addEventListener("click", function () {
   const ativo = document.body.classList.toggle("contraste");
   localStorage.setItem("contraste", ativo ? "ativo" : "");
 });
+
+// -------------------------------------------------------
+// Avatares da equipe — iniciais + gradiente por hue
+// -------------------------------------------------------
+document.querySelectorAll(".member-avatar").forEach(function (el) {
+  var initials = el.getAttribute("data-initials") || "?";
+  var hue      = parseInt(el.getAttribute("data-hue") || "158", 10);
+
+  el.textContent = initials;
+  el.style.background =
+    "linear-gradient(135deg, hsl(" + hue + ", 65%, 28%), hsl(" + hue + ", 85%, 44%))";
+});
+
+// -------------------------------------------------------
+// Partículas animadas no hero
+// -------------------------------------------------------
+(function () {
+  var canvas = document.getElementById("hero-particles");
+  if (!canvas) return;
+  var ctx = canvas.getContext("2d");
+
+  var particles = [];
+  var NUM = 55;
+  var mouse = { x: -9999, y: -9999 };
+
+  function resize() {
+    canvas.width  = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+
+  // Cria partículas com posições e velocidades aleatórias
+  for (var i = 0; i < NUM; i++) {
+    particles.push({
+      x:     Math.random() * canvas.width,
+      y:     Math.random() * canvas.height,
+      r:     Math.random() * 1.6 + 0.4,
+      vx:    (Math.random() - 0.5) * 0.35,
+      vy:    (Math.random() - 0.5) * 0.35,
+      alpha: Math.random() * 0.45 + 0.1,
+    });
+  }
+
+  // Rastreia posição do mouse para efeito de repulsão suave
+  canvas.closest(".hero").addEventListener("mousemove", function (e) {
+    var rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+
+  canvas.closest(".hero").addEventListener("mouseleave", function () {
+    mouse.x = -9999;
+    mouse.y = -9999;
+  });
+
+  function distancia(a, b) {
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Desenha linhas entre partículas próximas
+    for (var i = 0; i < particles.length; i++) {
+      for (var j = i + 1; j < particles.length; j++) {
+        var d = distancia(particles[i], particles[j]);
+        if (d < 110) {
+          ctx.beginPath();
+          ctx.strokeStyle = "rgba(0, 230, 118, " + (0.07 * (1 - d / 110)) + ")";
+          ctx.lineWidth = 0.6;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Desenha e move cada partícula
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+
+      // Repulsão suave do mouse
+      var dm = distancia(p, mouse);
+      if (dm < 90) {
+        var force = (90 - dm) / 90;
+        p.vx += ((p.x - mouse.x) / dm) * force * 0.06;
+        p.vy += ((p.y - mouse.y) / dm) * force * 0.06;
+      }
+
+      // Limite de velocidade
+      var speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+      if (speed > 1.2) { p.vx *= 1.2 / speed; p.vy *= 1.2 / speed; }
+
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Rebate nas bordas
+      if (p.x < 0 || p.x > canvas.width)  p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+      // Desenha o ponto
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0, 230, 118, " + p.alpha + ")";
+      ctx.fill();
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  loop();
+})();
+
+// -------------------------------------------------------
+// Validação em tempo real nos campos do formulário
+// -------------------------------------------------------
+function setStatus(statusId, inputEl, estado, msg) {
+  var statusEl = document.getElementById(statusId);
+  if (!statusEl) return;
+
+  statusEl.textContent = msg;
+  statusEl.className   = "input-status show " + estado;
+  inputEl.classList.remove("valid", "invalid");
+  inputEl.classList.add(estado === "ok" ? "valid" : "invalid");
+}
+
+function clearStatus(statusId, inputEl) {
+  var statusEl = document.getElementById(statusId);
+  if (statusEl) { statusEl.className = "input-status"; statusEl.textContent = ""; }
+  inputEl.classList.remove("valid", "invalid");
+}
+
+// Nome — mínimo 3 chars e pelo menos duas palavras
+document.getElementById("nome").addEventListener("input", function () {
+  var v = this.value.trim();
+  if (!v) { clearStatus("status-nome", this); return; }
+  var ok = v.length >= 3 && v.split(" ").filter(function (w) { return w.length > 0; }).length >= 2;
+  setStatus("status-nome", this, ok ? "ok" : "error", ok ? "✓" : "✗");
+});
+
+// Matrícula — ao menos 4 caracteres
+document.getElementById("matricula").addEventListener("input", function () {
+  var v = this.value.trim();
+  if (!v) { clearStatus("status-matricula", this); return; }
+  var ok = v.length >= 4;
+  setStatus("status-matricula", this, ok ? "ok" : "error", ok ? "✓" : "✗");
+});
+
+// CPF — validação completa ao terminar de digitar
+document.getElementById("cpf").addEventListener("input", function () {
+  var v = this.value.trim();
+  if (!v) { clearStatus("status-cpf", this); return; }
+  // Só valida quando tiver os 14 chars (000.000.000-00)
+  if (v.length < 14) { clearStatus("status-cpf", this); return; }
+  var ok = cpfValido(v);
+  setStatus("status-cpf", this, ok ? "ok" : "error", ok ? "✓" : "✗");
+});
+
+// E-mail — regex simples
+document.getElementById("email").addEventListener("input", function () {
+  var v = this.value.trim();
+  if (!v) { clearStatus("status-email", this); return; }
+  var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) && v.length <= 200;
+  setStatus("status-email", this, ok ? "ok" : "error", ok ? "✓" : "✗");
+});
+
+// -------------------------------------------------------
+// Barra de progresso de scroll
+// -------------------------------------------------------
+(function () {
+  var bar = document.getElementById("scroll-progress");
+  if (!bar) return;
+  window.addEventListener("scroll", function () {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = pct + "%";
+  }, { passive: true });
+})();
+
+// -------------------------------------------------------
+// Scroll to top
+// -------------------------------------------------------
+(function () {
+  var btn = document.getElementById("scroll-top");
+  if (!btn) return;
+
+  window.addEventListener("scroll", function () {
+    if (window.scrollY > 400) {
+      btn.classList.add("visivel");
+    } else {
+      btn.classList.remove("visivel");
+    }
+  }, { passive: true });
+
+  btn.addEventListener("click", function () {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
+
+// -------------------------------------------------------
+// Cursor personalizado
+// -------------------------------------------------------
+(function () {
+  // Desativa em touch/mobile
+  if (window.matchMedia("(hover: none)").matches) return;
+
+  var dot  = document.getElementById("cursor-dot");
+  var ring = document.getElementById("cursor-ring");
+  if (!dot || !ring) return;
+
+  var ringX = 0, ringY = 0;
+  var mouseX = 0, mouseY = 0;
+
+  document.addEventListener("mousemove", function (e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    dot.style.left = mouseX + "px";
+    dot.style.top  = mouseY + "px";
+  });
+
+  // Ring segue o cursor com leve atraso (lerp)
+  (function lerp() {
+    ringX += (mouseX - ringX) * 0.14;
+    ringY += (mouseY - ringY) * 0.14;
+    ring.style.left = ringX + "px";
+    ring.style.top  = ringY + "px";
+    requestAnimationFrame(lerp);
+  })();
+
+  // Expand ao passar sobre elementos clicáveis
+  var clickables = "a, button, [role='button'], .game, .btn, .btn-outline, " +
+    ".btn-small, .help-btn, #scroll-top, .menu-toggle, label, select, .member-card";
+
+  document.querySelectorAll(clickables).forEach(function (el) {
+    el.addEventListener("mouseenter", function () { document.body.classList.add("cursor-hover"); });
+    el.addEventListener("mouseleave", function () { document.body.classList.remove("cursor-hover"); });
+  });
+
+  // Esconde quando sai da janela
+  document.addEventListener("mouseleave", function () {
+    dot.style.opacity = "0"; ring.style.opacity = "0";
+  });
+  document.addEventListener("mouseenter", function () {
+    dot.style.opacity = "1"; ring.style.opacity = "1";
+  });
+})();
+
+// -------------------------------------------------------
+// Confete ao enviar inscrição
+// -------------------------------------------------------
+function dispararConfete() {
+  var canvas = document.getElementById("confetti-canvas");
+  if (!canvas) return;
+
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.classList.add("ativo");
+
+  var ctx = canvas.getContext("2d");
+  var pieces = [];
+  var COLORS = ["#00e676","#00a855","#4a90d9","#fbbf24","#f87171","#a78bfa","#fff"];
+  var COUNT  = 130;
+
+  for (var i = 0; i < COUNT; i++) {
+    pieces.push({
+      x:      Math.random() * canvas.width,
+      y:      Math.random() * canvas.height - canvas.height,
+      w:      Math.random() * 10 + 5,
+      h:      Math.random() * 5  + 3,
+      color:  COLORS[Math.floor(Math.random() * COLORS.length)],
+      rot:    Math.random() * Math.PI * 2,
+      vx:     (Math.random() - 0.5) * 3,
+      vy:     Math.random() * 4 + 2,
+      vrot:   (Math.random() - 0.5) * 0.15,
+      alpha:  1,
+    });
+  }
+
+  var start = null;
+  var DURACAO = 3200;
+
+  function desenhar(ts) {
+    if (!start) start = ts;
+    var elapsed = ts - start;
+    var progresso = elapsed / DURACAO;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    pieces.forEach(function (p) {
+      p.x   += p.vx;
+      p.y   += p.vy;
+      p.rot += p.vrot;
+      // Fade out na segunda metade
+      p.alpha = progresso < 0.6 ? 1 : 1 - ((progresso - 0.6) / 0.4);
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+
+    if (elapsed < DURACAO) {
+      requestAnimationFrame(desenhar);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.classList.remove("ativo");
+    }
+  }
+
+  requestAnimationFrame(desenhar);
+}
+
+// -------------------------------------------------------
+// Tema de cor por modalidade na seção de inscrição
+// -------------------------------------------------------
+(function () {
+  var secao = document.getElementById("inscricao");
+  if (!secao) return;
+
+  // Aplica tema quando um card de modalidade é selecionado
+  document.querySelectorAll(".game[data-modalidade]").forEach(function (card) {
+    card.addEventListener("click", function () {
+      var mod = card.getAttribute("data-modalidade");
+      secao.setAttribute("data-theme", mod || "default");
+    });
+  });
+
+  // Sincroniza com o select manual também
+  var sel = document.getElementById("modalidade");
+  if (sel) {
+    sel.addEventListener("change", function () {
+      secao.setAttribute("data-theme", sel.value || "default");
+    });
+  }
+})();

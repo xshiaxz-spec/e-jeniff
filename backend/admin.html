@@ -3,148 +3,590 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin — e-JINIFF</title>
+  <title>Admin — e-JINIFF 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, Helvetica, sans-serif; background: #0d1117; color: #f5f5f5; min-height: 100vh; }
+    /* ── VARIÁVEIS ── */
+    :root {
+      --green:        #00e676;
+      --green-dark:   #00a855;
+      --green-glow:   rgba(0,230,118,0.13);
+      --bg:           #050c12;
+      --bg2:          #0a1520;
+      --bg3:          #0f1e2e;
+      --surface:      #111c2a;
+      --border:       rgba(0,230,118,0.16);
+      --border-soft:  rgba(255,255,255,0.07);
+      --text:         #e8f0f8;
+      --text-muted:   #7a9bb5;
+      --text-dim:     #3d5a72;
+      --red:          #f87171;
+      --red-glow:     rgba(248,113,113,0.12);
+      --yellow:       #fbbf24;
+      --yellow-glow:  rgba(251,191,36,0.12);
+      --radius-sm:    8px;
+      --radius-md:    12px;
+      --radius-lg:    18px;
+      --shadow:       0 8px 32px rgba(0,0,0,0.5);
+      --transition:   0.22s cubic-bezier(0.4,0,0.2,1);
+    }
 
-    /* ── Tela de Login ── */
+    /* ── RESET ── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--green-dark); border-radius: 10px; }
+
+    /* ════════════════════════════════════
+       LOGIN OVERLAY
+    ════════════════════════════════════ */
     .login-overlay {
-      display: none; position: fixed; inset: 0;
-      background: #0d1117; z-index: 500;
-      align-items: center; justify-content: center;
+      display: none;
+      position: fixed; inset: 0;
+      background: var(--bg);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
     .login-overlay.ativo { display: flex; }
-    .login-box {
-      background: #111827; border: 1px solid #00a859;
-      border-radius: 18px; padding: 40px 36px;
-      width: 100%; max-width: 400px; text-align: center;
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 48px 40px;
+      width: 100%; max-width: 400px;
+      text-align: center;
+      box-shadow: var(--shadow), 0 0 60px rgba(0,230,118,0.06);
+      animation: fadeInUp 0.4s ease;
     }
-    .login-logo { font-size: 2.2rem; font-weight: bold; color: #00ff88; margin-bottom: 8px; }
-    .login-box h2 { color: #f5f5f5; font-size: 1.1rem; font-weight: normal; margin-bottom: 28px; }
-    .login-box input {
-      width: 100%; background: #0d1117; color: #f5f5f5;
-      border: 1px solid #333; padding: 12px 14px;
-      border-radius: 8px; font-size: 1rem; margin-bottom: 14px;
+
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
     }
-    .login-box input:focus { outline: none; border-color: #00ff88; }
-    .login-btn { width: 100%; padding: 13px; font-size: 1rem; background: #00a859; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-    .login-btn:hover { background: #00ff88; color: #0d1117; }
-    .login-erro { color: #ff4d4d; font-size: 0.88rem; margin-top: 10px; min-height: 20px; }
 
-    /* ── Header ── */
-    header { background: #05080d; border-bottom: 2px solid #00a859; padding: 18px 30px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    header h1 { color: #00ff88; font-size: 1.5rem; }
-    .header-actions { display: flex; gap: 10px; align-items: center; }
-    #ultima-atualizacao { color: #aaa; font-size: 0.9rem; }
+    .login-logo { margin-bottom: 24px; }
+    .login-logo img { height: 56px; width: auto; object-fit: contain; }
 
-    /* ── Botões ── */
-    .btn { border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: background 0.2s, color 0.2s; }
-    .btn-green  { background: #00a859; color: #fff; }
-    .btn-green:hover  { background: #00ff88; color: #0d1117; }
-    .btn-red    { background: transparent; color: #ff4d4d; border: 1px solid #ff4d4d; }
-    .btn-red:hover    { background: #ff4d4d; color: #fff; }
-    .btn-reset  { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
-    .btn-reset:hover  { background: #ef4444; color: #fff; }
-    .btn-logout { background: transparent; color: #aaa; border: 1px solid #444; }
-    .btn-logout:hover { background: #444; color: #fff; }
+    .login-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--text); margin-bottom: 6px;
+    }
+    .login-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 32px; }
 
-    /* ── Container ── */
-    .container { max-width: 1300px; margin: auto; padding: 30px 20px; }
+    .login-label {
+      display: block; text-align: left;
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--text-muted); margin-bottom: 28px;
+    }
+    .login-label span { display: block; margin-bottom: 7px; letter-spacing: 0.03em; }
 
-    /* ── Stats ── */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 36px; }
-    .stat-card { background: #111827; border: 1px solid #00a859; border-radius: 12px; padding: 20px; text-align: center; }
-    .stat-card .numero { font-size: 2.4rem; font-weight: bold; color: #00ff88; }
-    .stat-card .label  { font-size: 0.85rem; color: #aaa; margin-top: 6px; }
+    .login-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid var(--border-soft);
+      padding: 13px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .login-input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0,230,118,0.12);
+    }
 
-    /* ── Filtros ── */
-    .filtros { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
-    .filtros select, .filtros input { background: #111827; color: #f5f5f5; border: 1px solid #333; padding: 10px 14px; border-radius: 8px; font-size: 0.95rem; }
-    .filtros select:focus, .filtros input:focus { outline: 2px solid #00ff88; }
-    .filtros-acoes { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+    .login-btn {
+      width: 100%; padding: 14px;
+      font-size: 0.95rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      color: #03100a; border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .login-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,230,118,0.3);
+    }
 
-    /* ── Tabela ── */
-    .table-wrapper { overflow-x: auto; border-radius: 14px; border: 1px solid #1f2937; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-    thead { background: #111827; }
-    thead th { padding: 14px 14px; text-align: left; color: #00ff88; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-    tbody tr { border-top: 1px solid #1f2937; transition: background 0.15s; }
-    tbody tr:hover { background: #111827; }
-    tbody td { padding: 12px 14px; vertical-align: middle; }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; background: #00a85920; color: #00ff88; border: 1px solid #00a859; }
-    .acoes-td { display: flex; gap: 6px; }
-    .btn-del, .btn-edit { padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: background 0.2s, color 0.2s; }
-    .btn-del  { background: transparent; color: #ff4d4d; border: 1px solid #ff4d4d; }
-    .btn-del:hover  { background: #ff4d4d; color: #fff; }
-    .btn-edit { background: transparent; color: #fbbf24; border: 1px solid #fbbf24; }
-    .btn-edit:hover { background: #fbbf24; color: #0d1117; }
-    .vazio   { text-align: center; padding: 50px; color: #aaa; }
-    .loading { text-align: center; padding: 40px; color: #00ff88; }
+    .login-erro {
+      color: var(--red); font-size: 0.85rem;
+      margin-top: 12px; min-height: 20px;
+    }
 
-    /* ── Modal ── */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    /* ════════════════════════════════════
+       HEADER
+    ════════════════════════════════════ */
+    .header {
+      background: rgba(5,12,18,0.8);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1400px; margin: auto;
+      padding: 0 28px; height: 68px;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+    }
+
+    .header-brand {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .header-brand img.logo-ejiniff { height: 46px; width: auto; object-fit: contain; }
+    .header-brand img.logo-iff {
+      height: 30px; width: auto; object-fit: contain;
+      filter: brightness(0) invert(1); opacity: 0.6;
+    }
+
+    .header-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      color: var(--text-muted);
+      border-left: 1px solid var(--border-soft);
+      padding-left: 14px; letter-spacing: 0.04em;
+    }
+
+    .header-right {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+
+    .last-update {
+      font-size: 0.76rem; color: var(--text-dim);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .last-update::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--green); border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.3; transform:scale(0.6); }
+    }
+
+    /* ════════════════════════════════════
+       BOTÕES
+    ════════════════════════════════════ */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: none; padding: 9px 16px;
+      border-radius: var(--radius-sm); cursor: pointer;
+      font-weight: 600; font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      color: #03100a;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0,230,118,0.28);
+    }
+
+    .btn-ghost {
+      background: transparent; color: var(--text-muted);
+      border: 1px solid var(--border-soft);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+    .btn-danger {
+      background: var(--red-glow); color: var(--red);
+      border: 1px solid rgba(248,113,113,0.3);
+    }
+    .btn-danger:hover { background: rgba(248,113,113,0.22); border-color: var(--red); }
+
+    .btn-warn {
+      background: var(--yellow-glow); color: var(--yellow);
+      border: 1px solid rgba(251,191,36,0.3);
+    }
+    .btn-warn:hover { background: rgba(251,191,36,0.22); border-color: var(--yellow); }
+
+    .btn-sm { padding: 6px 11px; font-size: 0.78rem; }
+
+    /* ════════════════════════════════════
+       CONTAINER / LAYOUT
+    ════════════════════════════════════ */
+    .container {
+      max-width: 1400px; margin: auto;
+      padding: 32px 28px;
+    }
+
+    /* ════════════════════════════════════
+       STATS
+    ════════════════════════════════════ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px 22px;
+      position: relative; overflow: hidden;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute; top:0; left:0; right:0; height:2px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      opacity: 0; transition: opacity var(--transition);
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .stat-card:hover::before { opacity: 1; }
+
+    .stat-card .numero {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2.4rem; font-weight: 700;
+      color: var(--green); line-height: 1; display: block;
+    }
+    .stat-card .label {
+      font-size: 0.76rem; color: var(--text-muted);
+      margin-top: 5px; display: block;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    /* ════════════════════════════════════
+       TOOLBAR (filtros + ações)
+    ════════════════════════════════════ */
+    .toolbar {
+      display: flex; align-items: center;
+      gap: 10px; flex-wrap: wrap;
+      margin-bottom: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+    }
+
+    .toolbar select,
+    .toolbar input[type="text"] {
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid var(--border-soft);
+      padding: 9px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      transition: border-color var(--transition);
+      min-width: 180px;
+    }
+    .toolbar select:focus,
+    .toolbar input[type="text"]:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0,230,118,0.1);
+    }
+
+    .toolbar-sep { flex: 1; }
+
+    .toolbar-right { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    /* ════════════════════════════════════
+       TABELA
+    ════════════════════════════════════ */
+    .table-wrapper {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      overflow: hidden; overflow-x: auto;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+
+    thead { background: var(--bg3); }
+    thead th {
+      padding: 13px 16px; text-align: left;
+      color: var(--text-dim);
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      white-space: nowrap; border-bottom: 1px solid var(--border);
+    }
+    thead th:first-child { color: var(--text-dim); }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border-soft);
+      transition: background var(--transition);
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(0,230,118,0.03); }
+    tbody td { padding: 12px 16px; vertical-align: middle; color: var(--text-muted); }
+    tbody td:nth-child(2) { color: var(--text); font-weight: 500; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 11px; border-radius: 100px;
+      font-size: 0.73rem; font-weight: 600;
+      background: var(--green-glow); color: var(--green);
+      border: 1px solid rgba(0,230,118,0.22);
+      white-space: nowrap;
+    }
+
+    .td-acoes { display: flex; gap: 6px; align-items: center; }
+
+    .vazio, .loading {
+      text-align: center; padding: 60px 20px;
+      color: var(--text-dim); font-size: 0.9rem;
+    }
+    .loading { color: var(--green); }
+    .loading::after {
+      content: '';
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid var(--green-glow);
+      border-top-color: var(--green);
+      border-radius: 50%; margin-left: 10px;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* contador de resultados */
+    .result-count {
+      font-size: 0.78rem; color: var(--text-dim);
+      margin-bottom: 10px; padding-left: 2px;
+    }
+    .result-count strong { color: var(--text-muted); }
+
+    /* ════════════════════════════════════
+       MODAIS
+    ════════════════════════════════════ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
     .modal-overlay.ativo { display: flex; }
-    .modal { background: #111827; border: 1px solid #00a859; border-radius: 16px; padding: 32px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; position: relative; }
-    .modal h2 { color: #00ff88; margin-bottom: 24px; font-size: 1.3rem; }
-    .modal-close { position: absolute; top: 16px; right: 18px; background: transparent; border: none; color: #aaa; font-size: 1.4rem; cursor: pointer; }
-    .modal-close:hover { color: #fff; }
-    .form-grid { display: grid; gap: 16px; }
-    .form-group { display: grid; gap: 6px; }
-    .form-group label { font-size: 0.85rem; color: #aaa; font-weight: bold; }
-    .form-group input, .form-group select { background: #0d1117; color: #f5f5f5; border: 1px solid #333; padding: 10px 12px; border-radius: 8px; font-size: 0.95rem; }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: #00ff88; }
-    .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
-    .modal-reset-body { text-align: center; }
-    .modal-reset-body .icone { font-size: 3rem; margin-bottom: 16px; }
-    .modal-reset-body p { color: #ccc; margin-bottom: 8px; line-height: 1.6; }
-    .modal-reset-body strong { color: #ff4d4d; }
-    .modal-reset-body .form-actions { justify-content: center; margin-top: 28px; }
 
-    /* ── Toast ── */
-    .toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; border-radius: 10px; font-weight: bold; font-size: 0.9rem; z-index: 300; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s; pointer-events: none; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      width: 100%; max-width: 580px;
+      max-height: 90vh; overflow-y: auto;
+      position: relative;
+      box-shadow: var(--shadow);
+      animation: fadeInUp 0.25s ease;
+    }
+
+    .modal-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .modal-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.35rem; font-weight: 700;
+      color: var(--text);
+    }
+    .modal-close {
+      background: transparent; border: none;
+      color: var(--text-dim); font-size: 1.2rem;
+      cursor: pointer; padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      transition: background var(--transition), color var(--transition);
+    }
+    .modal-close:hover { background: var(--border-soft); color: var(--text); }
+
+    .form-grid { display: grid; gap: 18px; }
+
+    .form-group { display: grid; gap: 7px; }
+    .form-group label {
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--text-muted); letter-spacing: 0.02em;
+    }
+    .form-group input,
+    .form-group select {
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid var(--border-soft);
+      padding: 11px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.92rem;
+      font-family: 'Inter', sans-serif;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0,230,118,0.1);
+    }
+    .form-group select option { background: var(--bg2); }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-actions {
+      display: flex; gap: 10px;
+      justify-content: flex-end; margin-top: 28px;
+    }
+
+    /* Modal reset */
+    .modal-danger-body { text-align: center; }
+    .modal-danger-icon {
+      width: 64px; height: 64px;
+      background: var(--red-glow);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      margin: 0 auto 20px;
+    }
+    .modal-danger-body h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--text); margin-bottom: 12px;
+    }
+    .modal-danger-body p {
+      color: var(--text-muted); font-size: 0.9rem;
+      line-height: 1.7; margin-bottom: 6px;
+    }
+    .modal-danger-body strong { color: var(--red); }
+    .modal-danger-body .form-actions { justify-content: center; margin-top: 24px; }
+
+    /* ════════════════════════════════════
+       TOAST
+    ════════════════════════════════════ */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px;
+      padding: 13px 20px;
+      border-radius: var(--radius-md);
+      font-weight: 600; font-size: 0.88rem;
+      z-index: 400; max-width: 340px;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: var(--shadow);
+    }
     .toast.show { opacity: 1; transform: translateY(0); }
-    .toast.sucesso { background: #00a85930; color: #00ff88; border: 1px solid #00a859; }
-    .toast.erro    { background: #ff4d4d20; color: #ff4d4d; border: 1px solid #ff4d4d; }
+    .toast.sucesso {
+      background: var(--bg3); color: var(--green);
+      border: 1px solid rgba(0,230,118,0.25);
+    }
+    .toast.erro {
+      background: var(--bg3); color: var(--red);
+      border: 1px solid rgba(248,113,113,0.25);
+    }
 
-    footer { text-align: center; padding: 24px; border-top: 1px solid #1f2937; color: #555; font-size: 0.85rem; margin-top: 50px; }
-    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr 1fr; } .filtros-acoes { margin-left: 0; width: 100%; } }
+    /* ════════════════════════════════════
+       FOOTER
+    ════════════════════════════════════ */
+    .footer {
+      text-align: center; padding: 28px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim); font-size: 0.8rem;
+      margin-top: 40px;
+    }
+
+    /* ════════════════════════════════════
+       RESPONSIVO
+    ════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .header-inner { padding: 0 16px; }
+      .header-title { display: none; }
+      .container { padding: 20px 16px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .toolbar select, .toolbar input[type="text"] { min-width: unset; width: 100%; }
+      .toolbar-sep { display: none; }
+      .toolbar-right { width: 100%; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal { padding: 24px 18px; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .header-right { gap: 6px; }
+    }
   </style>
 </head>
 <body>
 
 <!-- ══ LOGIN ══ -->
 <div class="login-overlay ativo" id="loginOverlay">
-  <div class="login-box">
-    <div class="login-logo"><img src="/img/ejiniff2026-logo.png" alt="e-JINIFF 2026" style="height:60px;width:auto;object-fit:contain;" /></div>
-    <h2>Painel Administrativo</h2>
-    <input type="password" id="loginSenha" placeholder="Digite a senha de acesso" autocomplete="current-password" />
-    <button class="login-btn" onclick="fazerLogin()">Entrar</button>
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="/img/ejiniff2026-logo.png" alt="e-JINIFF 2026" />
+    </div>
+    <h1 class="login-title">Painel Administrativo</h1>
+    <p class="login-sub">IFF Campus Quissamã — e-JINIFF 2026</p>
+    <label class="login-label">
+      <span>Senha de acesso</span>
+      <input
+        class="login-input"
+        type="password"
+        id="loginSenha"
+        placeholder="••••••••"
+        autocomplete="current-password"
+      />
+    </label>
+    <button class="login-btn" onclick="fazerLogin()">Entrar no painel</button>
     <div class="login-erro" id="loginErro"></div>
   </div>
 </div>
 
 <!-- ══ HEADER ══ -->
-<header>
-  <h1><img src="/img/ejiniff2026-logo.png" alt="e-JINIFF 2026" style="height:54px;width:auto;object-fit:contain;vertical-align:middle;" /> Painel Admin</h1>
-  <div class="header-actions">
-    <img src="/img/logo_iff.png" alt="Logo IFF" style="height:36px;width:auto;object-fit:contain;opacity:0.8;filter:brightness(0) invert(1);" />
-    <span id="ultima-atualizacao"></span>
-    <button class="btn btn-reset" onclick="abrirModalReset()">🗑️ Resetar banco</button>
-    <button class="btn btn-logout" onclick="fazerLogout()">🚪 Sair</button>
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <img src="/img/ejiniff2026-logo.png" alt="e-JINIFF" class="logo-ejiniff" />
+      <img src="/img/logo_iff.png" alt="IFF" class="logo-iff" />
+      <span class="header-title">Painel Admin</span>
+    </div>
+    <div class="header-right">
+      <span class="last-update" id="ultima-atualizacao">Aguardando dados...</span>
+      <button class="btn btn-danger" onclick="abrirModalReset()">🗑 Resetar banco</button>
+      <button class="btn btn-ghost" onclick="fazerLogout()">Sair →</button>
+    </div>
   </div>
 </header>
 
+<!-- ══ CONTEÚDO ══ -->
 <div class="container">
+
+  <!-- Stats -->
   <div class="stats-grid" id="stats-grid">
     <div class="stat-card">
-      <div class="numero" id="stat-total">—</div>
-      <div class="label">Total de inscrições</div>
+      <span class="numero" id="stat-total">—</span>
+      <span class="label">Total de inscrições</span>
     </div>
   </div>
 
-  <div class="filtros">
-    <select id="filtro-modalidade">
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <select id="filtro-modalidade" title="Filtrar por modalidade">
       <option value="">Todas as modalidades</option>
       <option value="lol">League of Legends</option>
       <option value="valorant">Valorant</option>
@@ -152,36 +594,74 @@
       <option value="freefire">Free Fire</option>
       <option value="xadrez">Xadrez Arena</option>
     </select>
-    <input type="text" id="filtro-busca" placeholder="Buscar por nome ou matrícula..." />
-    <div class="filtros-acoes">
-      <button class="btn btn-green" onclick="exportarCSV()">⬇ Exportar CSV</button>
+    <input
+      type="text"
+      id="filtro-busca"
+      placeholder="🔍  Buscar por nome ou matrícula..."
+    />
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-right">
+      <button class="btn btn-ghost" onclick="carregarInscricoes()" title="Atualizar lista">↻ Atualizar</button>
+      <button class="btn btn-primary" onclick="exportarCSV()">⬇ Exportar CSV</button>
     </div>
   </div>
 
+  <div class="result-count" id="result-count"></div>
+
+  <!-- Tabela -->
   <div class="table-wrapper">
     <table>
       <thead>
-        <tr><th>#</th><th>Nome</th><th>Matrícula</th><th>E-mail</th><th>Modalidade</th><th>Função / Info</th><th>Data</th><th>Ações</th></tr>
+        <tr>
+          <th>#</th>
+          <th>Nome</th>
+          <th>Matrícula</th>
+          <th>E-mail</th>
+          <th>Modalidade</th>
+          <th>Função / Info</th>
+          <th>Data</th>
+          <th>Ações</th>
+        </tr>
       </thead>
       <tbody id="tabela-body">
-        <tr><td colspan="8" class="loading">Carregando...</td></tr>
+        <tr><td colspan="8" class="loading">Carregando inscrições</td></tr>
       </tbody>
     </table>
   </div>
+
 </div>
-<footer>© 2026 e-JINIFF — IFF Campus Quissamã</footer>
+
+<footer class="footer">© 2026 e-JINIFF — IFF Campus Quissamã · Painel Administrativo</footer>
 
 <!-- ══ MODAL EDITAR ══ -->
 <div class="modal-overlay" id="modalEditar">
   <div class="modal">
-    <button class="modal-close" onclick="fecharModal('modalEditar')">✕</button>
-    <h2>✏️ Editar Inscrição</h2>
+    <div class="modal-header">
+      <span class="modal-title">✏️ Editar inscrição</span>
+      <button class="modal-close" onclick="fecharModal('modalEditar')" aria-label="Fechar">✕</button>
+    </div>
     <form class="form-grid" id="formEditar" onsubmit="salvarEdicao(event)">
       <input type="hidden" id="edit-id" />
-      <div class="form-group"><label for="edit-nome">Nome completo</label><input id="edit-nome" type="text" required /></div>
-      <div class="form-group"><label for="edit-matricula">Matrícula</label><input id="edit-matricula" type="text" required /></div>
-      <div class="form-group"><label for="edit-cpf">CPF</label><input id="edit-cpf" type="text" maxlength="14" required /></div>
-      <div class="form-group"><label for="edit-email">E-mail</label><input id="edit-email" type="email" required /></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-nome">Nome completo</label>
+          <input id="edit-nome" type="text" required />
+        </div>
+        <div class="form-group">
+          <label for="edit-matricula">Matrícula</label>
+          <input id="edit-matricula" type="text" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-cpf">CPF</label>
+          <input id="edit-cpf" type="text" maxlength="14" required />
+        </div>
+        <div class="form-group">
+          <label for="edit-email">E-mail</label>
+          <input id="edit-email" type="email" required />
+        </div>
+      </div>
       <div class="form-group">
         <label for="edit-modalidade">Modalidade</label>
         <select id="edit-modalidade" required>
@@ -192,11 +672,19 @@
           <option value="xadrez">Xadrez Arena</option>
         </select>
       </div>
-      <div class="form-group"><label for="edit-campo-extra-label">Campo extra (label)</label><input id="edit-campo-extra-label" type="text" placeholder="Ex: Rota principal" /></div>
-      <div class="form-group"><label for="edit-campo-extra-valor">Campo extra (valor)</label><input id="edit-campo-extra-valor" type="text" placeholder="Ex: Suporte" /></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-campo-extra-label">Campo extra (label)</label>
+          <input id="edit-campo-extra-label" type="text" placeholder="Ex: Rota principal" />
+        </div>
+        <div class="form-group">
+          <label for="edit-campo-extra-valor">Campo extra (valor)</label>
+          <input id="edit-campo-extra-valor" type="text" placeholder="Ex: Suporte" />
+        </div>
+      </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-red" onclick="fecharModal('modalEditar')">Cancelar</button>
-        <button type="submit" class="btn btn-green" id="btn-salvar">Salvar alterações</button>
+        <button type="button" class="btn btn-ghost" onclick="fecharModal('modalEditar')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-salvar">Salvar alterações</button>
       </div>
     </form>
   </div>
@@ -204,30 +692,44 @@
 
 <!-- ══ MODAL RESET ══ -->
 <div class="modal-overlay" id="modalReset">
-  <div class="modal" style="max-width:420px">
-    <button class="modal-close" onclick="fecharModal('modalReset')">✕</button>
-    <div class="modal-reset-body">
-      <div class="icone">⚠️</div>
-      <h2>Resetar banco de dados</h2>
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <span class="modal-title" style="color:var(--red);">Resetar banco</span>
+      <button class="modal-close" onclick="fecharModal('modalReset')" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-danger-body">
+      <div class="modal-danger-icon">⚠️</div>
+      <h2>Ação irreversível</h2>
       <p>Esta ação irá <strong>apagar todas as inscrições</strong> permanentemente.</p>
-      <p>O banco será zerado e não há como desfazer.</p>
-      <p style="margin-top:16px">Para confirmar, digite <strong>RESETAR</strong> abaixo:</p>
-      <div class="form-group" style="margin-top:14px"><input id="input-confirma-reset" type="text" placeholder="Digite RESETAR" /></div>
+      <p>O banco será completamente zerado e não há como desfazer.</p>
+      <p style="margin-top:18px;">Para confirmar, digite <strong>RESETAR</strong> abaixo:</p>
+      <div class="form-group" style="margin-top:14px;text-align:left;">
+        <label for="input-confirma-reset">Confirmação</label>
+        <input id="input-confirma-reset" type="text" placeholder="RESETAR" />
+      </div>
       <div class="form-actions">
-        <button class="btn btn-red" onclick="fecharModal('modalReset')">Cancelar</button>
-        <button class="btn btn-reset" onclick="confirmarReset()">Confirmar reset</button>
+        <button class="btn btn-ghost" onclick="fecharModal('modalReset')">Cancelar</button>
+        <button class="btn btn-danger" onclick="confirmarReset()">Confirmar reset</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ══ TOAST ══ -->
 <div class="toast" id="toast"></div>
 
 <script>
+  // ── Constantes ───────────────────────────────────────
+  const nomeModalidade = {
+    lol: "League of Legends",
+    valorant: "Valorant",
+    cs2: "Counter-Strike 2",
+    freefire: "Free Fire",
+    xadrez: "Xadrez Arena",
+  };
+
   // ── Token de sessão ──────────────────────────────────
   let adminToken = sessionStorage.getItem("adminToken") || null;
-
-  const nomeModalidade = { lol:"League of Legends", valorant:"Valorant", cs2:"Counter-Strike 2", freefire:"Free Fire", xadrez:"Xadrez Arena" };
   let todasInscricoes = [];
 
   // ── Verifica sessão ao carregar ──────────────────────
@@ -243,13 +745,13 @@
 
   // ── Login ────────────────────────────────────────────
   async function fazerLogin() {
-    const senha = document.getElementById("loginSenha").value;
+    const senha  = document.getElementById("loginSenha").value;
     const erroEl = document.getElementById("loginErro");
     erroEl.textContent = "";
 
     if (!senha) { erroEl.textContent = "Digite a senha."; return; }
 
-    const res = await fetch("/api/admin/login", {
+    const res   = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ senha }),
@@ -297,91 +799,146 @@
   function inicializar() {
     carregarEstatisticas();
     carregarInscricoes();
+
     document.getElementById("filtro-busca").addEventListener("input", function () {
       const termo = this.value.toLowerCase();
-      renderizarTabela(termo ? filtrarLista(todasInscricoes, termo) : todasInscricoes);
+      const filtrada = termo ? filtrarLista(todasInscricoes, termo) : todasInscricoes;
+      renderizarTabela(filtrada);
     });
+
     document.getElementById("filtro-modalidade").addEventListener("change", carregarInscricoes);
   }
-</script>
 
-<script>
   // ── Toast ────────────────────────────────────────────
   function toast(texto, tipo = "sucesso") {
     const el = document.getElementById("toast");
     el.textContent = texto;
-    el.className = `toast ${tipo} show`;
-    setTimeout(() => el.classList.remove("show"), 3500);
+    el.className = "toast " + tipo + " show";
+    setTimeout(function () { el.classList.remove("show"); }, 3500);
   }
 
   // ── Modais ───────────────────────────────────────────
-  function abrirModal(id) { document.getElementById(id).classList.add("ativo"); }
+  function abrirModal(id)  { document.getElementById(id).classList.add("ativo"); }
   function fecharModal(id) { document.getElementById(id).classList.remove("ativo"); }
+
   document.querySelectorAll(".modal-overlay").forEach(function (o) {
-    o.addEventListener("click", function (e) { if (e.target === o) o.classList.remove("ativo"); });
+    o.addEventListener("click", function (e) {
+      if (e.target === o) o.classList.remove("ativo");
+    });
+  });
+
+  // ── Fechar com Escape ─────────────────────────────────
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      document.querySelectorAll(".modal-overlay.ativo").forEach(function (m) {
+        m.classList.remove("ativo");
+      });
+    }
   });
 
   // ── Estatísticas ─────────────────────────────────────
   async function carregarEstatisticas() {
-    const res   = await fetch("/api/estatisticas");
-    const dados = await res.json();
-    document.getElementById("stat-total").textContent = dados.totalGeral;
-    const grid = document.getElementById("stats-grid");
-    grid.querySelectorAll(".stat-card:not(:first-child)").forEach(function (c) { c.remove(); });
-    dados.porModalidade.forEach(function (m) {
-      const card = document.createElement("div");
-      card.className = "stat-card";
-      card.innerHTML = `<div class="numero">${m.total}</div><div class="label">${nomeModalidade[m.modalidade] || m.modalidade}</div>`;
-      grid.appendChild(card);
-    });
+    try {
+      const res   = await fetch("/api/estatisticas");
+      const dados = await res.json();
+
+      document.getElementById("stat-total").textContent = dados.totalGeral;
+
+      const grid = document.getElementById("stats-grid");
+      grid.querySelectorAll(".stat-card:not(:first-child)").forEach(function (c) { c.remove(); });
+
+      dados.porModalidade.forEach(function (m) {
+        const card = document.createElement("div");
+        card.className = "stat-card";
+        card.innerHTML =
+          '<span class="numero">' + m.total + '</span>' +
+          '<span class="label">' + (nomeModalidade[m.modalidade] || m.modalidade) + '</span>';
+        grid.appendChild(card);
+      });
+    } catch {}
   }
 
   // ── Inscrições ───────────────────────────────────────
   async function carregarInscricoes() {
+    document.getElementById("tabela-body").innerHTML =
+      '<tr><td colspan="8" class="loading">Carregando inscrições</td></tr>';
+
     const modalidade = document.getElementById("filtro-modalidade").value;
-    const url = modalidade ? `/api/inscricoes?modalidade=${modalidade}` : "/api/inscricoes";
+    const url = modalidade ? "/api/inscricoes?modalidade=" + modalidade : "/api/inscricoes";
+
     try {
       const res = await apiFetch(url);
       todasInscricoes = await res.json();
-      document.getElementById("ultima-atualizacao").textContent = "Atualizado: " + new Date().toLocaleTimeString("pt-BR");
+
+      const agora = new Date().toLocaleTimeString("pt-BR");
+      document.getElementById("ultima-atualizacao").textContent = "Atualizado às " + agora;
+
       const busca = document.getElementById("filtro-busca").value.toLowerCase();
       renderizarTabela(busca ? filtrarLista(todasInscricoes, busca) : todasInscricoes);
     } catch {}
   }
 
   function filtrarLista(lista, termo) {
-    return lista.filter(function (i) { return i.nome.toLowerCase().includes(termo) || i.matricula.toLowerCase().includes(termo); });
+    return lista.filter(function (i) {
+      return i.nome.toLowerCase().includes(termo) || i.matricula.toLowerCase().includes(termo);
+    });
   }
 
   function renderizarTabela(lista) {
     const tbody = document.getElementById("tabela-body");
-    if (lista.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="vazio">Nenhuma inscrição encontrada.</td></tr>`; return; }
+    const countEl = document.getElementById("result-count");
+
+    if (lista.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="vazio">Nenhuma inscrição encontrada.</td></tr>';
+      countEl.innerHTML = "";
+      return;
+    }
+
+    countEl.innerHTML = "Exibindo <strong>" + lista.length + "</strong> inscrição" + (lista.length !== 1 ? "ões" : "");
+
     tbody.innerHTML = lista.map(function (i) {
-      return `<tr>
-        <td>${i.id}</td><td>${esc(i.nome)}</td><td>${esc(i.matricula)}</td><td>${esc(i.email)}</td>
-        <td><span class="badge">${nomeModalidade[i.modalidade] || i.modalidade}</span></td>
-        <td>${i.campo_extra_label ? `<strong>${esc(i.campo_extra_label)}:</strong> ${esc(i.campo_extra_valor)}` : "—"}</td>
-        <td>${new Date(i.data_inscricao).toLocaleString("pt-BR")}</td>
-        <td><div class="acoes-td">
-          <button class="btn-edit" onclick="abrirEdicao(${i.id})">✏️ Editar</button>
-          <button class="btn-del"  onclick="deletar(${i.id})">🗑️ Remover</button>
-        </div></td>
-      </tr>`;
+      const data = new Date(i.data_inscricao).toLocaleString("pt-BR");
+      const extra = i.campo_extra_label
+        ? "<strong>" + esc(i.campo_extra_label) + ":</strong> " + esc(i.campo_extra_valor)
+        : "<span style='color:var(--text-dim)'>—</span>";
+
+      return "<tr>" +
+        "<td style='color:var(--text-dim);font-size:0.78rem;'>#" + i.id + "</td>" +
+        "<td>" + esc(i.nome) + "</td>" +
+        "<td><code style='font-size:0.82rem;color:var(--text-muted);'>" + esc(i.matricula) + "</code></td>" +
+        "<td style='font-size:0.82rem;'>" + esc(i.email) + "</td>" +
+        "<td><span class='badge'>" + (nomeModalidade[i.modalidade] || i.modalidade) + "</span></td>" +
+        "<td style='font-size:0.82rem;'>" + extra + "</td>" +
+        "<td style='font-size:0.78rem;color:var(--text-dim);white-space:nowrap;'>" + data + "</td>" +
+        "<td><div class='td-acoes'>" +
+          "<button class='btn btn-warn btn-sm' onclick='abrirEdicao(" + i.id + ")'>✏️ Editar</button>" +
+          "<button class='btn btn-danger btn-sm' onclick='deletar(" + i.id + ")'>🗑</button>" +
+        "</div></td>" +
+        "</tr>";
     }).join("");
   }
 
   function esc(str) {
     if (!str) return "";
-    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
   // ── Deletar ──────────────────────────────────────────
   async function deletar(id) {
     if (!confirm("Remover esta inscrição permanentemente?")) return;
     try {
-      const res = await apiFetch(`/api/inscricoes/${id}`, { method: "DELETE" });
-      if (res.ok) { toast("Inscrição removida."); await carregarInscricoes(); await carregarEstatisticas(); }
-      else { const d = await res.json(); toast("❌ " + d.erro, "erro"); }
+      const res = await apiFetch("/api/inscricoes/" + id, { method: "DELETE" });
+      if (res.ok) {
+        toast("Inscrição removida com sucesso.");
+        await carregarInscricoes();
+        await carregarEstatisticas();
+      } else {
+        const d = await res.json();
+        toast("❌ " + d.erro, "erro");
+      }
     } catch {}
   }
 
@@ -404,33 +961,61 @@
     e.preventDefault();
     const id = document.getElementById("edit-id").value;
     const payload = {
-      nome: document.getElementById("edit-nome").value.trim(),
-      matricula: document.getElementById("edit-matricula").value.trim(),
-      cpf: document.getElementById("edit-cpf").value.trim(),
-      email: document.getElementById("edit-email").value.trim(),
-      modalidade: document.getElementById("edit-modalidade").value,
+      nome:            document.getElementById("edit-nome").value.trim(),
+      matricula:       document.getElementById("edit-matricula").value.trim(),
+      cpf:             document.getElementById("edit-cpf").value.trim(),
+      email:           document.getElementById("edit-email").value.trim(),
+      modalidade:      document.getElementById("edit-modalidade").value,
       campoExtraLabel: document.getElementById("edit-campo-extra-label").value.trim() || null,
       campoExtraValor: document.getElementById("edit-campo-extra-valor").value.trim() || null,
     };
+
     const btn = document.getElementById("btn-salvar");
-    btn.disabled = true; btn.textContent = "Salvando...";
+    btn.disabled = true;
+    btn.textContent = "Salvando...";
+
     try {
-      const res = await apiFetch(`/api/inscricoes/${id}`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) });
+      const res = await apiFetch("/api/inscricoes/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       const dados = await res.json();
-      if (res.ok) { toast("✅ Inscrição atualizada!"); fecharModal("modalEditar"); await carregarInscricoes(); await carregarEstatisticas(); }
-      else { toast("❌ " + (dados.erro || "Erro ao salvar."), "erro"); }
-    } catch {} finally { btn.disabled = false; btn.textContent = "Salvar alterações"; }
+      if (res.ok) {
+        toast("✅ Inscrição atualizada com sucesso!");
+        fecharModal("modalEditar");
+        await carregarInscricoes();
+        await carregarEstatisticas();
+      } else {
+        toast("❌ " + (dados.erro || "Erro ao salvar."), "erro");
+      }
+    } catch {} finally {
+      btn.disabled = false;
+      btn.textContent = "Salvar alterações";
+    }
   }
 
   // ── Reset ────────────────────────────────────────────
-  function abrirModalReset() { document.getElementById("input-confirma-reset").value = ""; abrirModal("modalReset"); }
+  function abrirModalReset() {
+    document.getElementById("input-confirma-reset").value = "";
+    abrirModal("modalReset");
+  }
 
   async function confirmarReset() {
-    if (document.getElementById("input-confirma-reset").value.trim() !== "RESETAR") { toast("Digite RESETAR para confirmar.", "erro"); return; }
+    if (document.getElementById("input-confirma-reset").value.trim() !== "RESETAR") {
+      toast("Digite RESETAR para confirmar.", "erro");
+      return;
+    }
     try {
       const res = await apiFetch("/api/reset", { method: "DELETE" });
-      if (res.ok) { toast("🗑️ Banco resetado com sucesso."); fecharModal("modalReset"); await carregarInscricoes(); await carregarEstatisticas(); }
-      else { toast("Erro ao resetar o banco.", "erro"); }
+      if (res.ok) {
+        toast("Banco de dados resetado com sucesso.");
+        fecharModal("modalReset");
+        await carregarInscricoes();
+        await carregarEstatisticas();
+      } else {
+        toast("Erro ao resetar o banco.", "erro");
+      }
     } catch {}
   }
 
@@ -438,11 +1023,27 @@
   function exportarCSV() {
     const busca = document.getElementById("filtro-busca").value.toLowerCase();
     const lista = busca ? filtrarLista(todasInscricoes, busca) : todasInscricoes;
-    const cab = ["ID","Nome","Matrícula","CPF","E-mail","Modalidade","Função/Info","Data"];
-    const linhas = lista.map(function (i) { return [i.id,`"${i.nome}"`,i.matricula,i.cpf,i.email,nomeModalidade[i.modalidade]||i.modalidade,i.campo_extra_label?`${i.campo_extra_label}: ${i.campo_extra_valor}`:"",new Date(i.data_inscricao).toLocaleString("pt-BR")]; });
-    const csv = [cab,...linhas].map(function (r) { return r.join(";"); }).join("\n");
-    const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "inscricoes-ejiniff.csv"; link.click();
+
+    const cabecalho = ["ID", "Nome", "Matrícula", "CPF", "E-mail", "Modalidade", "Função/Info", "Data"];
+    const linhas = lista.map(function (i) {
+      return [
+        i.id,
+        '"' + i.nome + '"',
+        i.matricula,
+        i.cpf,
+        i.email,
+        nomeModalidade[i.modalidade] || i.modalidade,
+        i.campo_extra_label ? i.campo_extra_label + ": " + i.campo_extra_valor : "",
+        new Date(i.data_inscricao).toLocaleString("pt-BR"),
+      ];
+    });
+
+    const csv = [cabecalho, ...linhas].map(function (r) { return r.join(";"); }).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "inscricoes-ejiniff-" + new Date().toISOString().slice(0, 10) + ".csv";
+    link.click();
   }
 </script>
 </body>
