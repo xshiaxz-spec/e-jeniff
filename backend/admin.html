@@ -751,7 +751,7 @@
 
     if (!senha) { erroEl.textContent = "Digite a senha."; return; }
 
-    const res   = await fetch("/api/admin/login", {
+    const res   = await fetch("https://e-jeniff.onrender.com/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ senha }),
@@ -771,7 +771,7 @@
 
   // ── Logout ───────────────────────────────────────────
   async function fazerLogout() {
-    await fetch("/api/admin/logout", {
+    await fetch("https://e-jeniff.onrender.com/api/admin/logout", {
       method: "POST",
       headers: { "x-admin-token": adminToken },
     });
@@ -839,7 +839,7 @@
   // ── Estatísticas ─────────────────────────────────────
   async function carregarEstatisticas() {
     try {
-      const res   = await fetch("/api/estatisticas");
+      const res   = await fetch("https://e-jeniff.onrender.com/api/estatisticas");
       const dados = await res.json();
 
       document.getElementById("stat-total").textContent = dados.totalGeral;
@@ -864,7 +864,9 @@
       '<tr><td colspan="8" class="loading">Carregando inscrições</td></tr>';
 
     const modalidade = document.getElementById("filtro-modalidade").value;
-    const url = modalidade ? "/api/inscricoes?modalidade=" + modalidade : "/api/inscricoes";
+    const url = modalidade
+      ? "https://e-jeniff.onrender.com/api/inscricoes?modalidade=" + modalidade
+      : "https://e-jeniff.onrender.com/api/inscricoes";
 
     try {
       const res = await apiFetch(url);
@@ -930,7 +932,7 @@
   async function deletar(id) {
     if (!confirm("Remover esta inscrição permanentemente?")) return;
     try {
-      const res = await apiFetch("/api/inscricoes/" + id, { method: "DELETE" });
+      const res = await apiFetch("https://e-jeniff.onrender.com/api/inscricoes/" + id, { method: "DELETE" });
       if (res.ok) {
         toast("Inscrição removida com sucesso.");
         await carregarInscricoes();
@@ -975,7 +977,7 @@
     btn.textContent = "Salvando...";
 
     try {
-      const res = await apiFetch("/api/inscricoes/" + id, {
+      const res = await apiFetch("https://e-jeniff.onrender.com/api/inscricoes/" + id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -1007,7 +1009,7 @@
       return;
     }
     try {
-      const res = await apiFetch("/api/reset", { method: "DELETE" });
+      const res = await apiFetch("https://e-jeniff.onrender.com/api/reset", { method: "DELETE" });
       if (res.ok) {
         toast("Banco de dados resetado com sucesso.");
         fecharModal("modalReset");

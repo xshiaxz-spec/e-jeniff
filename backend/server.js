@@ -69,9 +69,32 @@ app.use(
 );
 
 // -------------------------------------------------------
-// CORS — permite mesma origem
+// CORS — permite requisições do frontend no Vercel
 // -------------------------------------------------------
-app.use(cors());
+const origens = [
+  /^https:\/\/e-jeniff(-[a-z0-9-]+)?\.vercel\.app$/,   // qualquer deploy do Vercel
+  "https://e-jeniff.onrender.com",                       // próprio Render (admin)
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Permite chamadas sem origin (ex.: Postman, curl, mesmo servidor)
+      if (!origin) return callback(null, true);
+      const permitida = origens.some(function (o) {
+        return typeof o === "string" ? o === origin : o.test(origin);
+      });
+      if (permitida) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS: origem não permitida — " + origin));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "x-admin-token"],
+    credentials: false,
+  })
+);
 
 // -------------------------------------------------------
 // Limite de tamanho de payload (evita ataques de payload gigante)

@@ -29,7 +29,7 @@ function mostrarSkeletonContadores() {
 async function carregarContadores() {
   mostrarSkeletonContadores();
   try {
-    const res   = await fetch("/api/estatisticas");
+    const res   = await fetch("https://e-jeniff.onrender.com/api/estatisticas");
     if (!res.ok) {
       // servidor offline — limpa skeleton com fallback
       document.querySelectorAll(".game-inscritos").forEach(function (el) {
@@ -411,7 +411,7 @@ form.addEventListener("submit", async function (e) {
   btnEnviar.textContent = "Enviando...";
 
   try {
-    const res   = await fetch("/api/inscricoes", {
+    const res   = await fetch("https://e-jeniff.onrender.com/api/inscricoes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
