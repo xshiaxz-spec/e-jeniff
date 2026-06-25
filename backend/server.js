@@ -13,9 +13,25 @@ const app  = express();
 const PORT = 3000;
 
 // -------------------------------------------------------
-// Senha do admin (via .env)
+// Senha do admin — OBRIGATÓRIA via .env (nunca hardcoded)
+// Formato esperado: ADMIN_PASSWORD_HASH=<hash gerado por gerar-hash.js>
+// Rota do painel:   ADMIN_ROUTE=<caminho-secreto> (ex: painel-xk92m)
 // -------------------------------------------------------
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "ejiniff@admin2026";
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
+const ADMIN_ROUTE         = process.env.ADMIN_ROUTE || "admin";
+
+if (!ADMIN_PASSWORD_HASH) {
+  console.error("\n❌ ERRO: variável ADMIN_PASSWORD_HASH não definida no .env");
+  console.error("   Execute: node gerar-hash.js <sua-senha> para gerar o hash.\n");
+  process.exit(1);
+}
+
+// Extrai salt e hash armazenados (formato: salt:hash em hex)
+const [ADMIN_SALT_HEX, ADMIN_HASH_HEX] = ADMIN_PASSWORD_HASH.split(":");
+if (!ADMIN_SALT_HEX || !ADMIN_HASH_HEX) {
+  console.error("\n❌ ERRO: ADMIN_PASSWORD_HASH com formato inválido. Use: node gerar-hash.js\n");
+  process.exit(1);
+}
 
 // -------------------------------------------------------
 // Configuração de e-mail — Resend
@@ -200,28 +216,28 @@ app.post("/api/admin/login", (req, res) => {
     return res.status(400).json({ erro: "Senha obrigatória." });
   }
 
-  // Comparação segura (tempo constante, evita timing attack)
-  const senhaHash    = crypto.createHash("sha256").update(String(senha)).digest("hex");
-  const esperadoHash = crypto.createHash("sha256").update(String(ADMIN_PASSWORD)).digest("hex");
+  // Verifica senha com scrypt (derivação de chave com salt)
+  const salt = Buffer.from(ADMIN_SALT_HEX, "hex");
+  crypto.scrypt(String(senha), salt, 64, (err, derivedKey) => {
+    if (err) {
+      return res.status(500).json({ erro: "Erro interno de autenticação." });
+    }
 
-  let ok = false;
-  try {
-    ok = crypto.timingSafeEqual(
-      Buffer.from(senhaHash, "hex"),
-      Buffer.from(esperadoHash, "hex")
-    );
-  } catch {
-    ok = false;
-  }
+    let ok = false;
+    try {
+      ok = crypto.timingSafeEqual(derivedKey, Buffer.from(ADMIN_HASH_HEX, "hex"));
+    } catch {
+      ok = false;
+    }
 
-  if (!ok) {
-    return res.status(401).json({ erro: "Senha incorreta." });
-  }
+    if (!ok) {
+      return res.status(401).json({ erro: "Senha incorreta." });
+    }
 
-  const token = gerarToken();
-  sessoes.set(token, { expira: Date.now() + 2 * 60 * 60 * 1000 }); // 2 horas
-
-  return res.json({ token });
+    const token = gerarToken();
+    sessoes.set(token, { expira: Date.now() + 2 * 60 * 60 * 1000 }); // 2 horas
+    return res.json({ token });
+  });
 });
 
 // -------------------------------------------------------
@@ -446,9 +462,9 @@ app.get("/api/estatisticas", (req, res) => {
 });
 
 // -------------------------------------------------------
-// Página de administração — protegida pela tela de login
+// Página de administração — rota secreta definida no .env
 // -------------------------------------------------------
-app.get("/admin", (req, res) => {
+app.get("/" + ADMIN_ROUTE, (req, res) => {
   res.sendFile(path.join(__dirname, "admin.html"));
 });
 
@@ -462,7 +478,7 @@ app.use("/api", (req, res) => {
 // -------------------------------------------------------
 app.listen(PORT, () => {
   console.log(`\n✅ Servidor rodando em https://e-jeniff.onrender.com`);
-  console.log(`📋 Admin: https://e-jeniff.onrender.com/admin`);
+  console.log(`📋 Admin: https://e-jeniff.onrender.com/${ADMIN_ROUTE}`);
   console.log(`🎮 Site:  https://e-jeniff.onrender.com/Index.html`);
-  console.log(`\n🔐 Senha admin definida via .env (ADMIN_PASSWORD)\n`);
+  console.log(`\n🔐 Senha admin via .env (ADMIN_PASSWORD_HASH + scrypt)\n`);
 });
