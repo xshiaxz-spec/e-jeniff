@@ -715,53 +715,6 @@ document.getElementById("email").addEventListener("input", function () {
   });
 })();
 
-// -------------------------------------------------------
-// Cursor personalizado
-// -------------------------------------------------------
-(function () {
-  // Desativa em touch/mobile
-  if (window.matchMedia("(hover: none)").matches) return;
-
-  var dot  = document.getElementById("cursor-dot");
-  var ring = document.getElementById("cursor-ring");
-  if (!dot || !ring) return;
-
-  var ringX = 0, ringY = 0;
-  var mouseX = 0, mouseY = 0;
-
-  document.addEventListener("mousemove", function (e) {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    dot.style.left = mouseX + "px";
-    dot.style.top  = mouseY + "px";
-  });
-
-  // Ring segue o cursor com leve atraso (lerp)
-  (function lerp() {
-    ringX += (mouseX - ringX) * 0.14;
-    ringY += (mouseY - ringY) * 0.14;
-    ring.style.left = ringX + "px";
-    ring.style.top  = ringY + "px";
-    requestAnimationFrame(lerp);
-  })();
-
-  // Expand ao passar sobre elementos clicáveis
-  var clickables = "a, button, [role='button'], .game, .btn, .btn-outline, " +
-    ".btn-small, .help-btn, #scroll-top, .menu-toggle, label, select, .member-card";
-
-  document.querySelectorAll(clickables).forEach(function (el) {
-    el.addEventListener("mouseenter", function () { document.body.classList.add("cursor-hover"); });
-    el.addEventListener("mouseleave", function () { document.body.classList.remove("cursor-hover"); });
-  });
-
-  // Esconde quando sai da janela
-  document.addEventListener("mouseleave", function () {
-    dot.style.opacity = "0"; ring.style.opacity = "0";
-  });
-  document.addEventListener("mouseenter", function () {
-    dot.style.opacity = "1"; ring.style.opacity = "1";
-  });
-})();
 
 // -------------------------------------------------------
 // Confete ao enviar inscrição

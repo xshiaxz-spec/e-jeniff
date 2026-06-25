@@ -1538,54 +1538,6 @@ body.contraste .btn:hover { filter: brightness(1.2); }
 
 #confetti-canvas.ativo { opacity: 1; }
 
-/* =====================================================
-   CURSOR PERSONALIZADO
-   ===================================================== */
-body { cursor: none; }
-
-#cursor-dot,
-#cursor-ring {
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 99999;
-  transition: opacity 0.3s;
-}
-
-#cursor-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--green);
-  top: 0; left: 0;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 6px rgba(0,230,118,0.8);
-}
-
-#cursor-ring {
-  width: 28px;
-  height: 28px;
-  border: 1.5px solid rgba(0,230,118,0.5);
-  top: 0; left: 0;
-  transform: translate(-50%, -50%);
-  transition: width 0.2s, height 0.2s, border-color 0.2s, background 0.2s;
-}
-
-/* Cursor expandido sobre elementos clicáveis */
-body.cursor-hover #cursor-ring {
-  width: 40px;
-  height: 40px;
-  border-color: var(--green);
-  background: rgba(0,230,118,0.06);
-}
-
-body.cursor-hover #cursor-dot {
-  transform: translate(-50%, -50%) scale(0.5);
-}
-
-/* Mantém cursor padrão dentro de inputs e selects */
-input, select, textarea { cursor: text; }
-a, button, [role="button"], .game, .btn, .btn-outline, .btn-small,
-.help-btn, #scroll-top, .menu-toggle, label { cursor: none; }
 
 /* =====================================================
    TEMA DE COR POR MODALIDADE (seção de inscrição)
