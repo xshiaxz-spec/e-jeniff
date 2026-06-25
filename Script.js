@@ -817,3 +817,214 @@ function dispararConfete() {
     });
   }
 })();
+
+// -------------------------------------------------------
+// SISTEMA DE STATUS DA INSCRIÇÃO
+// -------------------------------------------------------
+var statusBuscaTimer = null;
+
+// Enter no campo também dispara a busca
+document.addEventListener("DOMContentLoaded", function () {
+  var input = document.getElementById("status-busca");
+  if (input) {
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") buscarStatus();
+    });
+  }
+  // Carrega chaveamento da aba padrão ao iniciar
+  carregarChaves("cs2");
+});
+
+async function buscarStatus() {
+  var input = document.getElementById("status-busca");
+  var btn   = document.getElementById("status-btn");
+  var res   = document.getElementById("status-resultado");
+  var q     = (input ? input.value.trim() : "");
+
+  if (!q || q.length < 3) {
+    res.innerHTML = '<div class="status-erro">⚠️ Digite sua matrícula ou e-mail (mínimo 3 caracteres).</div>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Buscando...";
+  res.innerHTML = "";
+
+  try {
+    var r = await fetch("https://e-jeniff.onrender.com/api/status?q=" + encodeURIComponent(q));
+    var dados = await r.json();
+
+    if (!r.ok) {
+      res.innerHTML = '<div class="status-erro">❌ ' + (dados.erro || "Nenhuma inscrição encontrada.") + '</div>';
+      return;
+    }
+
+    var nomesModal = {
+      lol: "League of Legends", valorant: "Valorant",
+      cs2: "Counter-Strike 2", freefire: "Free Fire", xadrez: "Xadrez Arena",
+    };
+
+    var partida = "";
+    if (dados.fase) {
+      var faseNomes = {
+        final: "Grande Final", semifinal: "Semifinal",
+        quartas: "Quartas de Final", oitavas: "Oitavas de Final", dezesseis: "16 avos",
+      };
+      var statusLabel = { aguardando: "Aguardando", em_andamento: "🔴 Ao vivo", finalizado: "Encerrado" };
+      var adversario  = dados.adversario || "Aguardando adversário";
+      var placarStr   = (dados.placar1 !== null && dados.placar2 !== null)
+        ? dados.placar1 + " × " + dados.placar2 : "—";
+      var vencedorStr = dados.vencedor
+        ? '<br><small style="color:var(--green)">🏆 Vencedor: ' + esc(dados.vencedor) + '</small>' : "";
+
+      partida = '<div class="status-partida">' +
+        '<div class="status-partida-titulo">' + (faseNomes[dados.fase] || dados.fase) + '</div>' +
+        '<div class="status-vs">' +
+          '<strong>' + esc(dados.nome) + '</strong>' +
+          '<span class="vs-sep">VS</span>' +
+          '<span>' + esc(adversario) + '</span>' +
+        '</div>' +
+        '<div style="margin-top:6px;font-size:0.82rem;color:var(--text-muted)">Placar: <strong style="color:var(--text)">' + placarStr + '</strong>' + vencedorStr + '</div>' +
+        '<span class="status-badge-partida ' + (dados.partida_status || "aguardando") + '">' +
+          (statusLabel[dados.partida_status] || "Aguardando") + '</span>' +
+        (dados.data_partida ? '<div style="margin-top:6px;font-size:0.78rem;color:var(--text-dim)">📅 ' + dados.data_partida + '</div>' : "") +
+        '</div>';
+    }
+
+    var funcao = dados.campo_extra_label && dados.campo_extra_valor
+      ? dados.campo_extra_label + ": " + dados.campo_extra_valor : "—";
+
+    res.innerHTML =
+      '<div class="status-card confirmado">' +
+        '<div class="status-card-header">' +
+          '<span class="status-icon">✅</span>' +
+          '<div>' +
+            '<div class="status-card-title">Inscrição confirmada!</div>' +
+            '<div class="status-card-sub">Você está participando do e-JINIFF 2026</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="status-grid">' +
+          '<div class="status-item"><span class="status-item-label">Nome</span><span class="status-item-valor">' + esc(dados.nome) + '</span></div>' +
+          '<div class="status-item"><span class="status-item-label">Modalidade</span><span class="status-item-valor">' + (nomesModal[dados.modalidade] || dados.modalidade) + '</span></div>' +
+          '<div class="status-item"><span class="status-item-label">Função</span><span class="status-item-valor">' + esc(funcao) + '</span></div>' +
+          '<div class="status-item"><span class="status-item-label">Data da inscrição</span><span class="status-item-valor">' + dados.data_inscricao + '</span></div>' +
+        '</div>' +
+        partida +
+      '</div>';
+
+  } catch (err) {
+    res.innerHTML = '<div class="status-erro">❌ Servidor indisponível. Tente novamente.</div>';
+    console.error("Erro ao buscar status:", err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Consultar →";
+  }
+}
+
+// Helper de escape para usar no JS (reutiliza lógica inline)
+function esc(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+// -------------------------------------------------------
+// SISTEMA DE CHAVEAMENTO PÚBLICO
+// -------------------------------------------------------
+var chaveModAtual = "cs2";
+var chaveRefreshTimer = null;
+
+// Tabs de modalidade
+document.querySelectorAll(".chave-tab").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    document.querySelectorAll(".chave-tab").forEach(function (b) { b.classList.remove("ativo"); });
+    btn.classList.add("ativo");
+    chaveModAtual = btn.getAttribute("data-mod");
+    carregarChaves(chaveModAtual);
+  });
+});
+
+async function carregarChaves(modalidade) {
+  var el = document.getElementById("chaves-conteudo");
+  if (!el) return;
+  el.innerHTML = '<div class="chaves-vazio">Carregando...</div>';
+
+  try {
+    // Verifica se o chaveamento está visível
+    var cfgRes = await fetch("https://e-jeniff.onrender.com/api/config");
+    var cfg    = cfgRes.ok ? await cfgRes.json() : {};
+    if (cfg.chaveamento_visivel === "false") {
+      el.innerHTML = '<div class="chaves-vazio">⏳ O chaveamento ainda não foi divulgado.<br><small>Volte em breve!</small></div>';
+      return;
+    }
+
+    var res  = await fetch("https://e-jeniff.onrender.com/api/chaves?modalidade=" + encodeURIComponent(modalidade));
+    var data = await res.json();
+
+    if (!res.ok || !data.length) {
+      el.innerHTML = '<div class="chaves-vazio">📋 Chaveamento não gerado ainda para esta modalidade.</div>';
+      return;
+    }
+
+    // Agrupa por fase
+    var porFase = {};
+    data.forEach(function (c) {
+      if (!porFase[c.fase]) porFase[c.fase] = [];
+      porFase[c.fase].push(c);
+    });
+
+    var ordemFases = ["dezesseis", "oitavas", "quartas", "semifinal", "final"];
+    var faseNomes  = {
+      dezesseis: "16 avos de Final", oitavas: "Oitavas de Final",
+      quartas: "Quartas de Final", semifinal: "Semifinal", final: "Grande Final",
+    };
+
+    var html = "";
+    ordemFases.forEach(function (fase) {
+      if (!porFase[fase]) return;
+      html += '<div class="bracket-fase-label">' + (faseNomes[fase] || fase) + '</div>';
+      html += '<div class="bracket-lista">';
+      porFase[fase].forEach(function (c) {
+        var statusLabel = { aguardando: "Aguardando", em_andamento: "🔴 Ao vivo", finalizado: "Encerrado" };
+        var j1venceu = c.vencedor_id && c.vencedor_id === c.jogador1_id;
+        var j2venceu = c.vencedor_id && c.vencedor_id === c.jogador2_id;
+
+        var nome1 = c.nome1 || "A definir";
+        var nome2 = c.nome2 || (c.jogador2_id === null ? "BYE (passa direto)" : "A definir");
+        var isBye = c.jogador2_id === null;
+
+        var placar1 = c.placar1 !== null ? c.placar1 : '<span class="bracket-placar sem-placar">—</span>';
+        var placar2 = c.placar2 !== null ? c.placar2 : '<span class="bracket-placar sem-placar">—</span>';
+
+        html +=
+          '<div class="bracket-card ' + (c.status || "aguardando") + '">' +
+            '<div class="bracket-card-header">' +
+              '<span>Confronto #' + c.posicao + '</span>' +
+              '<span class="bracket-status ' + (c.status || "aguardando") + '">' + (statusLabel[c.status] || "Aguardando") + '</span>' +
+            '</div>' +
+            '<div class="bracket-jogador ' + (j1venceu ? "vencedor" : j2venceu ? "perdedor" : "") + '">' +
+              '<span class="bracket-jogador-nome">' + (j1venceu ? '<span class="coroa">👑</span>' : "") + esc(nome1) + '</span>' +
+              '<span class="bracket-placar">' + (c.placar1 !== null ? c.placar1 : "—") + '</span>' +
+            '</div>' +
+            '<div class="bracket-jogador ' + (isBye ? "bracket-bye" : j2venceu ? "vencedor" : j1venceu ? "perdedor" : "") + '">' +
+              '<span class="bracket-jogador-nome">' + (j2venceu ? '<span class="coroa">👑</span>' : "") + esc(nome2) + '</span>' +
+              '<span class="bracket-placar">' + (c.placar2 !== null ? c.placar2 : "—") + '</span>' +
+            '</div>' +
+            (c.data_partida ? '<div class="bracket-data">📅 ' + esc(c.data_partida) + '</div>' : '') +
+          '</div>';
+      });
+      html += '</div>';
+    });
+
+    el.innerHTML = html;
+
+    // Auto-refresh a cada 30s enquanto a aba estiver visível
+    clearTimeout(chaveRefreshTimer);
+    chaveRefreshTimer = setTimeout(function () { carregarChaves(chaveModAtual); }, 30000);
+
+  } catch (err) {
+    el.innerHTML = '<div class="chaves-vazio">❌ Erro ao carregar chaveamento. Tente novamente.</div>';
+    console.error("Erro ao carregar chaves:", err);
+  }
+}

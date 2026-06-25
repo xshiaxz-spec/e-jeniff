@@ -60,7 +60,27 @@ db.exec(`
     campo_extra_label  TEXT,
     campo_extra_valor  TEXT,
     data_inscricao     TEXT    NOT NULL
-  )
+  );
+
+  CREATE TABLE IF NOT EXISTS chaves (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    modalidade   TEXT NOT NULL,
+    fase         TEXT NOT NULL DEFAULT 'oitavas',
+    posicao      INTEGER NOT NULL,
+    jogador1_id  INTEGER REFERENCES inscricoes(id) ON DELETE SET NULL,
+    jogador2_id  INTEGER REFERENCES inscricoes(id) ON DELETE SET NULL,
+    placar1      INTEGER,
+    placar2      INTEGER,
+    vencedor_id  INTEGER REFERENCES inscricoes(id) ON DELETE SET NULL,
+    status       TEXT NOT NULL DEFAULT 'aguardando',
+    data_partida TEXT,
+    criado_em    TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS configuracoes (
+    chave TEXT PRIMARY KEY,
+    valor TEXT NOT NULL
+  );
 `);
 
 // Migração transparente: se ainda existir coluna "cpf" em claro, converte e remove.
@@ -374,6 +394,187 @@ app.get("/api/estatisticas", (req, res) => {
   ).all();
   const { total: totalGeral } = db.prepare("SELECT COUNT(*) as total FROM inscricoes").get();
   return res.json({ totalGeral, porModalidade: stats });
+});
+
+// ══════════════════════════════════════════════════════════════════════════
+// SISTEMA DE CHAVEAMENTO & RESULTADOS
+// ══════════════════════════════════════════════════════════════════════════
+
+// ── GET /api/config — lê configurações públicas ────────────────────────────
+app.get("/api/config", (req, res) => {
+  const rows = db.prepare("SELECT chave, valor FROM configuracoes").all();
+  const cfg  = {};
+  rows.forEach(function (r) { cfg[r.chave] = r.valor; });
+  return res.json(cfg);
+});
+
+// ── PUT /api/config — salva configurações (protegido) ─────────────────────
+app.put("/api/config", autenticarAdmin, (req, res) => {
+  const permitidas = ["inscricoes_abertas", "chaveamento_visivel", "resultados_visiveis"];
+  const upsert = db.prepare(
+    "INSERT INTO configuracoes (chave, valor) VALUES (?, ?) " +
+    "ON CONFLICT(chave) DO UPDATE SET valor = excluded.valor"
+  );
+  db.transaction(function () {
+    for (const [k, v] of Object.entries(req.body)) {
+      if (permitidas.includes(k)) upsert.run(k, String(v));
+    }
+  })();
+  return res.json({ mensagem: "Configurações salvas." });
+});
+
+// ── GET /api/chaves — público: retorna chaves de uma modalidade ────────────
+app.get("/api/chaves", (req, res) => {
+  const { modalidade } = req.query;
+  if (!modalidade || !MODALIDADES_VALIDAS.includes(modalidade))
+    return res.status(400).json({ erro: "Modalidade inválida." });
+
+  const rows = db.prepare(`
+    SELECT c.*,
+      i1.nome AS nome1, i1.campo_extra_valor AS funcao1,
+      i2.nome AS nome2, i2.campo_extra_valor AS funcao2,
+      iv.nome AS nome_vencedor
+    FROM chaves c
+    LEFT JOIN inscricoes i1 ON c.jogador1_id = i1.id
+    LEFT JOIN inscricoes i2 ON c.jogador2_id = i2.id
+    LEFT JOIN inscricoes iv ON c.vencedor_id = iv.id
+    WHERE c.modalidade = ?
+    ORDER BY c.fase, c.posicao
+  `).all(modalidade);
+  return res.json(rows);
+});
+
+// ── POST /api/chaves/gerar — gera chaveamento (protegido) ──────────────────
+app.post("/api/chaves/gerar", autenticarAdmin, (req, res) => {
+  const { modalidade, tipo } = req.body; // tipo: "eliminatorio"
+  if (!modalidade || !MODALIDADES_VALIDAS.includes(modalidade))
+    return res.status(400).json({ erro: "Modalidade inválida." });
+
+  const inscritos = db.prepare(
+    "SELECT id, nome FROM inscricoes WHERE modalidade = ? ORDER BY RANDOM()"
+  ).all(modalidade);
+
+  if (inscritos.length < 2)
+    return res.status(400).json({ erro: "São necessários ao menos 2 inscritos para gerar o chaveamento." });
+
+  // Elimina chaves antigas desta modalidade
+  db.prepare("DELETE FROM chaves WHERE modalidade = ?").run(modalidade);
+
+  // Determina a fase inicial com base no número de inscritos
+  const n = inscritos.length;
+  let fase = "final";
+  if (n > 2)  fase = "semifinal";
+  if (n > 4)  fase = "quartas";
+  if (n > 8)  fase = "oitavas";
+  if (n > 16) fase = "dezesseis";
+
+  const insert = db.prepare(`
+    INSERT INTO chaves (modalidade, fase, posicao, jogador1_id, jogador2_id, status, criado_em)
+    VALUES (?, ?, ?, ?, ?, 'aguardando', datetime('now'))
+  `);
+
+  // Preenche confrontos em pares; jogador sem adversário recebe "bye"
+  db.transaction(function () {
+    for (let i = 0; i < inscritos.length; i += 2) {
+      const j1 = inscritos[i];
+      const j2 = inscritos[i + 1] || null;
+      insert.run(modalidade, fase, Math.floor(i / 2) + 1, j1.id, j2 ? j2.id : null);
+    }
+  })();
+
+  const chaves = db.prepare("SELECT * FROM chaves WHERE modalidade = ? ORDER BY posicao").all(modalidade);
+  return res.status(201).json({ mensagem: "Chaveamento gerado com sucesso.", total: chaves.length, chaves });
+});
+
+// ── PUT /api/chaves/:id — atualiza placar/vencedor (protegido) ─────────────
+app.put("/api/chaves/:id", autenticarAdmin, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.status(400).json({ erro: "ID inválido." });
+
+  const { placar1, placar2, vencedor_id, status, data_partida } = req.body;
+
+  const chave = db.prepare("SELECT * FROM chaves WHERE id = ?").get(id);
+  if (!chave) return res.status(404).json({ erro: "Partida não encontrada." });
+
+  // Valida vencedor_id — deve ser jogador1 ou jogador2
+  if (vencedor_id && vencedor_id !== chave.jogador1_id && vencedor_id !== chave.jogador2_id)
+    return res.status(400).json({ erro: "Vencedor inválido — deve ser um dos jogadores da partida." });
+
+  const statusValidos = ["aguardando", "em_andamento", "finalizado"];
+  if (status && !statusValidos.includes(status))
+    return res.status(400).json({ erro: "Status inválido." });
+
+  db.prepare(`
+    UPDATE chaves SET
+      placar1      = COALESCE(?, placar1),
+      placar2      = COALESCE(?, placar2),
+      vencedor_id  = COALESCE(?, vencedor_id),
+      status       = COALESCE(?, status),
+      data_partida = COALESCE(?, data_partida)
+    WHERE id = ?
+  `).run(
+    placar1 !== undefined ? placar1 : null,
+    placar2 !== undefined ? placar2 : null,
+    vencedor_id || null,
+    status || null,
+    data_partida || null,
+    id
+  );
+
+  return res.json({ mensagem: "Partida atualizada com sucesso." });
+});
+
+// ── DELETE /api/chaves — remove chaveamento de uma modalidade (protegido) ──
+app.delete("/api/chaves", autenticarAdmin, (req, res) => {
+  const { modalidade } = req.query;
+  if (!modalidade || !MODALIDADES_VALIDAS.includes(modalidade))
+    return res.status(400).json({ erro: "Modalidade inválida." });
+  const r = db.prepare("DELETE FROM chaves WHERE modalidade = ?").run(modalidade);
+  return res.json({ mensagem: "Chaveamento removido.", total: r.changes });
+});
+
+// ── GET /api/status — busca inscrição pública (matrícula ou e-mail) ────────
+const limiterStatus = rateLimit({
+  windowMs: 5 * 60 * 1000, max: 20,
+  message: { erro: "Muitas consultas. Aguarde alguns minutos." },
+});
+app.get("/api/status", limiterStatus, (req, res) => {
+  const { q } = req.query;
+  if (!q || q.trim().length < 3)
+    return res.status(400).json({ erro: "Informe sua matrícula ou e-mail para buscar." });
+
+  const termo = q.trim().toLowerCase();
+
+  // Busca por matrícula (exact) ou e-mail (exact)
+  const row = db.prepare(`
+    SELECT i.id, i.nome, i.modalidade, i.campo_extra_label, i.campo_extra_valor, i.data_inscricao,
+      c.fase, c.posicao, c.placar1, c.placar2, c.status AS partida_status, c.data_partida,
+      i1.nome AS adversario,
+      iv.nome AS vencedor
+    FROM inscricoes i
+    LEFT JOIN chaves c ON (c.jogador1_id = i.id OR c.jogador2_id = i.id)
+      AND c.id = (
+        SELECT id FROM chaves
+        WHERE (jogador1_id = i.id OR jogador2_id = i.id)
+        ORDER BY id DESC LIMIT 1
+      )
+    LEFT JOIN inscricoes i1 ON (
+      CASE WHEN c.jogador1_id = i.id THEN c.jogador2_id ELSE c.jogador1_id END = i1.id
+    )
+    LEFT JOIN inscricoes iv ON c.vencedor_id = iv.id
+    WHERE LOWER(i.matricula) = ? OR LOWER(i.email) = ?
+    LIMIT 1
+  `).get(termo, termo);
+
+  if (!row) return res.status(404).json({ erro: "Nenhuma inscrição encontrada com esses dados." });
+
+  // Nunca retorna dados sensíveis (sem cpf_hash, cpf_sufixo, email)
+  const { data_inscricao, ...resto } = row;
+  return res.json({
+    ...resto,
+    data_inscricao: new Date(data_inscricao).toLocaleDateString("pt-BR"),
+    inscrito: true,
+  });
 });
 
 // ── Painel admin ───────────────────────────────────────────────────────────

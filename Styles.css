@@ -1685,3 +1685,343 @@ body.contraste .btn:hover { filter: brightness(1.2); }
   background: var(--accent-glow, var(--green-glow));
   transition: all 0.5s;
 }
+
+
+/* =====================================================
+   STATUS DA INSCRIÇÃO
+   ===================================================== */
+.status-layout {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.status-input-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.status-input-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.status-input-row input:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0,230,118,0.12);
+}
+
+.status-input-row .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Card de resultado */
+.status-card {
+  margin-top: 24px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 30px;
+  animation: slideIn 0.35s ease;
+}
+
+.status-card.confirmado { border-color: rgba(0,230,118,0.4); }
+.status-card.nao-encontrado { border-color: rgba(248,113,113,0.3); }
+
+.status-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.status-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.status-card-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.status-card-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.status-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+}
+
+.status-item-label {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.status-item-valor {
+  font-size: 0.92rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Partida encontrada */
+.status-partida {
+  margin-top: 20px;
+  padding: 16px 18px;
+  background: rgba(0,230,118,0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.status-partida-titulo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-partida-titulo::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-vs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.status-vs strong { color: var(--text); }
+.status-vs .vs-sep {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.status-badge-partida {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 100px;
+  margin-top: 8px;
+}
+
+.status-badge-partida.aguardando  { background: rgba(122,155,181,0.12); color: var(--text-muted); border: 1px solid var(--border); }
+.status-badge-partida.em_andamento{ background: rgba(251,191,36,0.12);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.status-badge-partida.finalizado  { background: rgba(0,230,118,0.1);    color: var(--green); border: 1px solid var(--border); }
+
+.status-erro {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: rgba(248,113,113,0.07);
+  border: 1px solid rgba(248,113,113,0.25);
+  border-radius: var(--radius-md);
+  color: #f87171;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .status-input-row { flex-direction: column; }
+  .status-grid { grid-template-columns: 1fr; }
+}
+
+/* =====================================================
+   CHAVEAMENTO / BRACKETS
+   ===================================================== */
+.chaves-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.chave-tab {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 8px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  transition: all var(--transition);
+}
+
+.chave-tab:hover { background: var(--green-glow); color: var(--text); border-color: var(--border-hover); }
+.chave-tab.ativo  { background: var(--green-glow); color: var(--green); border-color: rgba(0,230,118,0.5); }
+
+.chaves-vazio {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* Grade de confrontos */
+.bracket-fase-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 14px;
+  padding-left: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bracket-fase-label::before {
+  content: '';
+  width: 20px; height: 2px;
+  background: var(--green-dark);
+  border-radius: 2px;
+}
+
+.bracket-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.bracket-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+.bracket-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-card);
+}
+
+.bracket-card.finalizado { border-color: rgba(0,230,118,0.3); }
+.bracket-card.em_andamento { border-color: rgba(251,191,36,0.4); }
+
+.bracket-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.bracket-status {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.bracket-status.aguardando   { background: rgba(122,155,181,0.1); color: var(--text-muted); }
+.bracket-status.em_andamento { background: rgba(251,191,36,0.15); color: #fbbf24; }
+.bracket-status.finalizado   { background: rgba(0,230,118,0.1);   color: var(--green); }
+
+.bracket-jogador {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background var(--transition);
+}
+
+.bracket-jogador:last-child { border-bottom: none; }
+.bracket-jogador.vencedor { background: rgba(0,230,118,0.05); }
+.bracket-jogador.perdedor { opacity: 0.5; }
+
+.bracket-jogador-nome {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bracket-jogador-nome .coroa { font-size: 0.85rem; }
+
+.bracket-bye .bracket-jogador-nome {
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.82rem;
+}
+
+.bracket-placar {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--green);
+  min-width: 28px;
+  text-align: right;
+}
+
+.bracket-placar.sem-placar { color: var(--text-dim); font-size: 0.9rem; }
+
+.bracket-data {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  padding: 6px 14px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+@media (max-width: 640px) {
+  .bracket-lista { grid-template-columns: 1fr; }
+  .chaves-tabs { gap: 6px; }
+  .chave-tab { padding: 7px 14px; font-size: 0.8rem; }
+}

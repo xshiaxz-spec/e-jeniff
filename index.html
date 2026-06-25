@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+z<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -41,6 +41,8 @@
         <li><a href="#objetivos">Objetivos</a></li>
         <li><a href="#modalidades">Modalidades</a></li>
         <li><a href="#inscricao">Inscrição</a></li>
+        <li><a href="#status">Minha Inscrição</a></li>
+        <li><a href="#chaves">Chaveamento</a></li>
         <li><a href="#equipe">Equipe</a></li>
         <li><a href="#localizacao">Localização</a></li>
       </ul>
@@ -296,6 +298,48 @@
         </div>
       </div>
     </section>
+
+    <!-- STATUS DA INSCRIÇÃO -->
+    <section id="status" class="section">
+      <div class="section-header fade-up">
+        <span class="section-badge">🔍 Minha inscrição</span>
+        <h2>Consultar <span>status</span></h2>
+        <p class="section-sub">Digite sua matrícula ou e-mail para ver se sua inscrição foi confirmada e sua chave no torneio.</p>
+        <div class="divider"></div>
+      </div>
+      <div class="status-layout fade-up">
+        <div class="status-form-wrap">
+          <div class="status-input-row">
+            <input id="status-busca" type="text" placeholder="Matrícula ou e-mail institucional"
+                   autocomplete="off" aria-label="Buscar inscrição" />
+            <button class="btn" id="status-btn" onclick="buscarStatus()">Consultar →</button>
+          </div>
+          <div id="status-resultado" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHAVEAMENTO -->
+    <div class="section-alt" id="chaves">
+      <div class="section-inner">
+        <div class="section-header fade-up">
+          <span class="section-badge">🏆 Torneio</span>
+          <h2>Chaveamento e <span>Resultados</span></h2>
+          <p class="section-sub">Acompanhe os confrontos de cada modalidade em tempo real.</p>
+          <div class="divider"></div>
+        </div>
+        <div class="chaves-tabs fade-up">
+          <button class="chave-tab ativo" data-mod="cs2">CS2</button>
+          <button class="chave-tab" data-mod="valorant">Valorant</button>
+          <button class="chave-tab" data-mod="lol">LoL</button>
+          <button class="chave-tab" data-mod="freefire">Free Fire</button>
+          <button class="chave-tab" data-mod="xadrez">Xadrez</button>
+        </div>
+        <div id="chaves-conteudo" class="fade-up" aria-live="polite">
+          <div class="chaves-vazio">Carregando chaveamento...</div>
+        </div>
+      </div>
+    </div>
 
     <!-- EQUIPE -->
     <div class="section-alt" id="equipe">

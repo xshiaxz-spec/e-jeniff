@@ -372,6 +372,117 @@
       .header-right { gap:6px; }
       .toast { left:16px; right:16px; bottom:16px; max-width:unset; }
     }
+
+    /* ── ABAS ADMIN ── */
+    .admin-tabs {
+      display:flex; gap:4px; margin-bottom:24px;
+      border-bottom:1px solid var(--border); padding-bottom:0;
+    }
+    .admin-tab {
+      background:transparent; border:none; border-bottom:2px solid transparent;
+      color:var(--text-muted); padding:10px 18px; cursor:pointer;
+      font-size:0.85rem; font-weight:600; font-family:'Inter',sans-serif;
+      transition:all var(--transition); margin-bottom:-1px;
+    }
+    .admin-tab:hover { color:var(--text); }
+    .admin-tab.ativo { color:var(--green); border-bottom-color:var(--green); }
+
+    /* ── PAINÉIS ── */
+    .painel { display:none; }
+    .painel.ativo { display:block; }
+
+    /* ── CHAVEAMENTO ADMIN ── */
+    .chave-admin-toolbar {
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin-bottom:24px; background:var(--surface);
+      border:1px solid var(--border); border-radius:var(--radius-md); padding:14px 18px;
+    }
+    .chave-admin-toolbar select {
+      background:rgba(255,255,255,0.04); color:var(--text);
+      border:1px solid var(--border-soft); padding:9px 14px;
+      border-radius:var(--radius-sm); font-size:0.88rem;
+      font-family:'Inter',sans-serif; min-width:180px;
+    }
+    .chave-admin-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px;
+    }
+    .chave-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-md); overflow:hidden;
+    }
+    .chave-card-header {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 14px; background:rgba(0,0,0,0.2);
+      border-bottom:1px solid var(--border); font-size:0.72rem; color:var(--text-dim);
+    }
+    .chave-jogador {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.04);
+    }
+    .chave-jogador:last-of-type { border-bottom:none; }
+    .chave-jogador-nome { font-size:0.88rem; color:var(--text); font-weight:500; }
+    .chave-jogador-nome.vencedor { color:var(--green); }
+    .chave-placar-input {
+      width:52px; text-align:center; padding:5px 8px;
+      background:rgba(255,255,255,0.05); color:var(--text);
+      border:1px solid var(--border-soft); border-radius:var(--radius-sm);
+      font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+    }
+    .chave-placar-input:focus { outline:none; border-color:var(--green); box-shadow:0 0 0 2px rgba(0,230,118,0.12); }
+    .chave-actions {
+      display:flex; gap:6px; padding:10px 14px;
+      background:rgba(0,0,0,0.15); border-top:1px solid var(--border);
+      flex-wrap:wrap; align-items:center;
+    }
+    .chave-status-select {
+      background:rgba(255,255,255,0.04); color:var(--text-muted);
+      border:1px solid var(--border-soft); padding:5px 10px;
+      border-radius:var(--radius-sm); font-size:0.78rem;
+      font-family:'Inter',sans-serif; flex:1; min-width:110px;
+    }
+
+    /* ── CONFIGURAÇÕES ── */
+    .config-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:28px 32px; max-width:640px;
+    }
+    .config-titulo {
+      font-family:'Rajdhani',sans-serif; font-size:1.15rem;
+      font-weight:700; color:var(--text); margin-bottom:20px;
+    }
+    .config-lista { display:flex; flex-direction:column; }
+    .config-item {
+      display:flex; align-items:center; justify-content:space-between;
+      gap:20px; padding:16px 0; border-bottom:1px solid var(--border-soft);
+    }
+    .config-item:last-child { border-bottom:none; }
+    .config-item strong { display:block; font-size:0.9rem; color:var(--text); margin-bottom:3px; }
+    .config-item small { font-size:0.78rem; color:var(--text-dim); }
+    .config-actions { margin-top:24px; }
+
+    /* Toggle switch */
+    .toggle { position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0; }
+    .toggle input { opacity:0; width:0; height:0; }
+    .toggle-slider {
+      position:absolute; inset:0; cursor:pointer;
+      background:rgba(255,255,255,0.08); border-radius:100px;
+      border:1px solid var(--border-soft); transition:all var(--transition);
+    }
+    .toggle-slider::before {
+      content:''; position:absolute; height:16px; width:16px;
+      left:3px; top:3px; background:var(--text-dim);
+      border-radius:50%; transition:all var(--transition);
+    }
+    .toggle input:checked + .toggle-slider { background:var(--green-glow); border-color:var(--green); }
+    .toggle input:checked + .toggle-slider::before { transform:translateX(20px); background:var(--green); }
+
+    @media (max-width:768px) {
+      .chave-admin-toolbar { flex-direction:column; align-items:stretch; }
+      .chave-admin-toolbar select { min-width:unset; width:100%; }
+      .chave-admin-grid { grid-template-columns:1fr; }
+      .config-card { padding:20px 18px; }
+      .admin-tabs { overflow-x:auto; white-space:nowrap; }
+    }
   </style>
 </head>
 <body>
@@ -427,6 +538,15 @@
     </div>
   </div>
 
+  <!-- Abas de navegação -->
+  <div class="admin-tabs">
+    <button class="admin-tab ativo" data-painel="inscricoes" onclick="trocarPainel('inscricoes')">📋 Inscrições</button>
+    <button class="admin-tab" data-painel="chaveamento" onclick="trocarPainel('chaveamento')">🏆 Chaveamento</button>
+    <button class="admin-tab" data-painel="configuracoes" onclick="trocarPainel('configuracoes')">⚙️ Configurações</button>
+  </div>
+
+  <!-- ── PAINEL: INSCRIÇÕES ── -->
+  <div id="painel-inscricoes" class="painel ativo">
   <!-- Toolbar -->
   <div class="toolbar">
     <select id="filtro-modalidade" title="Filtrar por modalidade" aria-label="Filtrar por modalidade">
@@ -473,6 +593,66 @@
 
   <!-- Paginação -->
   <div class="pagination" id="pagination"></div>
+  </div><!-- /painel-inscricoes -->
+
+  <!-- ── PAINEL: CHAVEAMENTO ── -->
+  <div id="painel-chaveamento" class="painel">
+    <div class="chave-admin-toolbar">
+      <select id="chave-mod-select" aria-label="Modalidade para chaveamento">
+        <option value="cs2">Counter-Strike 2</option>
+        <option value="valorant">Valorant</option>
+        <option value="lol">League of Legends</option>
+        <option value="freefire">Free Fire</option>
+        <option value="xadrez">Xadrez Arena</option>
+      </select>
+      <button class="btn btn-primary" onclick="gerarChaveamento()">⚡ Gerar chaveamento</button>
+      <button class="btn btn-ghost" onclick="carregarChaveAdmin()">↻ Atualizar</button>
+      <button class="btn btn-danger btn-sm" onclick="removerChaveamento()">🗑 Remover chaves</button>
+    </div>
+    <div id="chave-admin-resultado" class="chave-admin-grid"></div>
+  </div>
+
+  <!-- ── PAINEL: CONFIGURAÇÕES ── -->
+  <div id="painel-configuracoes" class="painel">
+    <div class="config-card">
+      <h3 class="config-titulo">Visibilidade pública</h3>
+      <div class="config-lista">
+        <div class="config-item">
+          <div>
+            <strong>Inscrições abertas</strong>
+            <small>Quando desativado, o formulário de inscrição fica oculto no site.</small>
+          </div>
+          <label class="toggle" aria-label="Inscrições abertas">
+            <input type="checkbox" id="cfg-inscricoes" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="config-item">
+          <div>
+            <strong>Chaveamento visível</strong>
+            <small>Exibe os confrontos na seção "Chaveamento" do site público.</small>
+          </div>
+          <label class="toggle" aria-label="Chaveamento visível">
+            <input type="checkbox" id="cfg-chaveamento" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="config-item">
+          <div>
+            <strong>Resultados visíveis</strong>
+            <small>Exibe placares e vencedores no site público.</small>
+          </div>
+          <label class="toggle" aria-label="Resultados visíveis">
+            <input type="checkbox" id="cfg-resultados" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="config-actions">
+        <button class="btn btn-primary" onclick="salvarConfiguracoes()">Salvar configurações</button>
+      </div>
+    </div>
+  </div>
 
 </main>
 
@@ -1174,6 +1354,163 @@
     URL.revokeObjectURL(link.href);
 
     toast("✅ CSV exportado: " + listaFiltrada.length + " registro(s).");
+  }
+
+  // ── Trocar painel ────────────────────────────────────
+  function trocarPainel(nome) {
+    document.querySelectorAll(".admin-tab").forEach(function (t) {
+      t.classList.toggle("ativo", t.getAttribute("data-painel") === nome);
+    });
+    document.querySelectorAll(".painel").forEach(function (p) {
+      p.classList.toggle("ativo", p.id === "painel-" + nome);
+    });
+    if (nome === "chaveamento") carregarChaveAdmin();
+    if (nome === "configuracoes") carregarConfiguracoes();
+  }
+
+  // ── Chaveamento admin ────────────────────────────────
+  async function gerarChaveamento() {
+    var modalidade = document.getElementById("chave-mod-select").value;
+    if (!confirm("Gerar chaveamento para " + modalidade + "? Confrontos existentes serão substituídos.")) return;
+    try {
+      var res   = await apiFetch(API + "/api/chaves/gerar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ modalidade: modalidade }),
+      });
+      var dados = await res.json();
+      if (res.ok) {
+        toast("✅ " + dados.mensagem + " (" + dados.total + " confrontos)");
+        carregarChaveAdmin();
+      } else {
+        toast("❌ " + (dados.erro || "Erro ao gerar."), "erro");
+      }
+    } catch (err) {
+      if (err.message !== "401") toast("❌ Erro de conexão.", "erro");
+    }
+  }
+
+  async function removerChaveamento() {
+    var modalidade = document.getElementById("chave-mod-select").value;
+    if (!confirm("Remover todo o chaveamento de " + modalidade + "?")) return;
+    try {
+      var res = await apiFetch(API + "/api/chaves?modalidade=" + encodeURIComponent(modalidade), { method: "DELETE" });
+      var d   = await res.json();
+      if (res.ok) { toast("✅ " + d.mensagem); carregarChaveAdmin(); }
+      else toast("❌ " + (d.erro || "Erro."), "erro");
+    } catch (err) {
+      if (err.message !== "401") toast("❌ Erro de conexão.", "erro");
+    }
+  }
+
+  async function carregarChaveAdmin() {
+    var modalidade = document.getElementById("chave-mod-select").value;
+    var el = document.getElementById("chave-admin-resultado");
+    el.innerHTML = '<div style="color:var(--text-dim);padding:40px;text-align:center;">Carregando...</div>';
+    try {
+      var res  = await apiFetch(API + "/api/chaves?modalidade=" + encodeURIComponent(modalidade));
+      var data = await res.json();
+      if (!res.ok || !data.length) {
+        el.innerHTML = '<div style="color:var(--text-dim);padding:40px;text-align:center;border:1px dashed var(--border);border-radius:var(--radius-md);">Nenhum chaveamento gerado para esta modalidade.</div>';
+        return;
+      }
+      el.innerHTML = data.map(function (c) {
+        var nome1 = esc(c.nome1 || "A definir");
+        var nome2 = c.jogador2_id === null ? '<em style="color:var(--text-dim)">BYE</em>' : esc(c.nome2 || "A definir");
+        var v1 = c.vencedor_id === c.jogador1_id && c.vencedor_id;
+        var v2 = c.vencedor_id === c.jogador2_id && c.vencedor_id;
+        return '<div class="chave-card" id="chave-' + c.id + '">' +
+          '<div class="chave-card-header">' +
+            '<span>' + esc(c.fase) + ' · #' + c.posicao + '</span>' +
+            '<span style="color:var(--' + (c.status === "finalizado" ? "green" : c.status === "em_andamento" ? "yellow" : "text-dim") + ')">' + esc(c.status) + '</span>' +
+          '</div>' +
+          '<div class="chave-jogador">' +
+            '<span class="chave-jogador-nome' + (v1 ? " vencedor" : "") + '">' + (v1 ? "👑 " : "") + nome1 + '</span>' +
+            '<input class="chave-placar-input" type="number" min="0" max="99" placeholder="—" value="' + (c.placar1 !== null ? c.placar1 : "") + '" data-id="' + c.id + '" data-campo="placar1" aria-label="Placar jogador 1" />' +
+          '</div>' +
+          '<div class="chave-jogador">' +
+            '<span class="chave-jogador-nome' + (v2 ? " vencedor" : "") + '">' + (v2 ? "👑 " : "") + nome2 + '</span>' +
+            '<input class="chave-placar-input" type="number" min="0" max="99" placeholder="—" value="' + (c.placar2 !== null ? c.placar2 : "") + '" data-id="' + c.id + '" data-campo="placar2" aria-label="Placar jogador 2" />' +
+          '</div>' +
+          '<div class="chave-actions">' +
+            '<select class="chave-status-select" data-id="' + c.id + '" aria-label="Status da partida">' +
+              '<option value="aguardando"' + (c.status === "aguardando" ? " selected" : "") + '>Aguardando</option>' +
+              '<option value="em_andamento"' + (c.status === "em_andamento" ? " selected" : "") + '>🔴 Ao vivo</option>' +
+              '<option value="finalizado"' + (c.status === "finalizado" ? " selected" : "") + '>Encerrado</option>' +
+            '</select>' +
+            '<select class="chave-status-select" data-id="' + c.id + '" data-campo="vencedor" style="min-width:130px;" aria-label="Vencedor">' +
+              '<option value="">Vencedor...</option>' +
+              (c.jogador1_id ? '<option value="' + c.jogador1_id + '"' + (c.vencedor_id === c.jogador1_id ? " selected" : "") + '>' + esc(c.nome1 || "J1") + '</option>' : '') +
+              (c.jogador2_id ? '<option value="' + c.jogador2_id + '"' + (c.vencedor_id === c.jogador2_id ? " selected" : "") + '>' + esc(c.nome2 || "J2") + '</option>' : '') +
+            '</select>' +
+            '<button class="btn btn-primary btn-sm" onclick="salvarPartida(' + c.id + ')">Salvar</button>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+
+      document.getElementById("chave-mod-select").addEventListener("change", carregarChaveAdmin);
+    } catch (err) {
+      if (err.message !== "401") el.innerHTML = '<div style="color:var(--red);padding:20px;">❌ Erro ao carregar.</div>';
+    }
+  }
+
+  async function salvarPartida(id) {
+    var card      = document.getElementById("chave-" + id);
+    var inputs    = card.querySelectorAll(".chave-placar-input");
+    var selects   = card.querySelectorAll(".chave-status-select");
+    var p1        = inputs[0].value !== "" ? parseInt(inputs[0].value) : undefined;
+    var p2        = inputs[1].value !== "" ? parseInt(inputs[1].value) : undefined;
+    var status    = selects[0].value || undefined;
+    var vencedor  = selects[1] && selects[1].value ? parseInt(selects[1].value) : undefined;
+    var payload   = {};
+    if (p1 !== undefined) payload.placar1 = p1;
+    if (p2 !== undefined) payload.placar2 = p2;
+    if (status)           payload.status  = status;
+    if (vencedor)         payload.vencedor_id = vencedor;
+    try {
+      var res  = await apiFetch(API + "/api/chaves/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      var d = await res.json();
+      res.ok ? toast("✅ Partida #" + id + " atualizada.") : toast("❌ " + (d.erro || "Erro."), "erro");
+      if (res.ok) carregarChaveAdmin();
+    } catch (err) {
+      if (err.message !== "401") toast("❌ Erro de conexão.", "erro");
+    }
+  }
+
+  // ── Configurações ────────────────────────────────────
+  async function carregarConfiguracoes() {
+    try {
+      var res = await fetch(API + "/api/config");
+      if (!res.ok) return;
+      var cfg = await res.json();
+      var el;
+      el = document.getElementById("cfg-inscricoes");  if (el) el.checked = cfg.inscricoes_abertas  !== "false";
+      el = document.getElementById("cfg-chaveamento"); if (el) el.checked = cfg.chaveamento_visivel === "true";
+      el = document.getElementById("cfg-resultados");  if (el) el.checked = cfg.resultados_visiveis === "true";
+    } catch (err) { console.error("Erro ao carregar configurações:", err); }
+  }
+
+  async function salvarConfiguracoes() {
+    var payload = {
+      inscricoes_abertas:   document.getElementById("cfg-inscricoes").checked  ? "true" : "false",
+      chaveamento_visivel:  document.getElementById("cfg-chaveamento").checked ? "true" : "false",
+      resultados_visiveis:  document.getElementById("cfg-resultados").checked  ? "true" : "false",
+    };
+    try {
+      var res = await apiFetch(API + "/api/config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      var d = await res.json();
+      res.ok ? toast("✅ " + d.mensagem) : toast("❌ " + (d.erro || "Erro."), "erro");
+    } catch (err) {
+      if (err.message !== "401") toast("❌ Erro de conexão.", "erro");
+    }
   }
 </script>
 </body>
