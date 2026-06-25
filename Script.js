@@ -8,6 +8,9 @@ const form             = document.getElementById("formInscricao");
 const menuToggle       = document.getElementById("menuToggle");
 const navLinks         = document.getElementById("navLinks");
 const cpfInput         = document.getElementById("cpf");
+const btnEnviar        = document.getElementById("btnEnviar");
+const lgpdCheck        = document.getElementById("lgpd-check");
+const lgpdStatus       = document.getElementById("lgpd-status");
 
 // -------------------------------------------------------
 // 1. Contador de inscrições por modalidade nos cards
@@ -345,6 +348,9 @@ modalidadeSelect.addEventListener("change", function () {
       </label>
     `;
   }
+
+  // Atualiza progresso após montar campo extra
+  atualizarProgresso();
 });
 
 // -------------------------------------------------------
@@ -368,10 +374,130 @@ function cpfValido(cpf) {
 }
 
 // -------------------------------------------------------
+// Indicador de progresso do formulário
+// -------------------------------------------------------
+function atualizarProgresso() {
+  var fill = document.getElementById("form-progress-fill");
+  var pctEl = document.getElementById("form-progress-pct");
+  var bar = document.getElementById("form-progress-bar");
+  if (!fill || !pctEl || !bar) return;
+
+  var campos = [
+    { id: "nome",      valido: function (v) { return v.length >= 3 && v.split(" ").filter(function(w){ return w.length > 0; }).length >= 2; } },
+    { id: "matricula", valido: function (v) { return v.length >= 4; } },
+    { id: "cpf",       valido: function (v) { return cpfValido(v); } },
+    { id: "email",     valido: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) && v.length <= 200; } },
+    { id: "modalidade",valido: function (v) { return v !== ""; } },
+  ];
+
+  // Campo extra (função/posição)
+  var extraEl = campoExtra.querySelector("[name='campoExtraValor']");
+  if (extraEl) {
+    campos.push({ id: null, valido: function () { return extraEl.value !== ""; }, el: extraEl });
+  }
+
+  // LGPD
+  campos.push({ id: null, valido: function () { return lgpdCheck && lgpdCheck.checked; }, el: lgpdCheck });
+
+  var total = campos.length;
+  var preenchidos = 0;
+
+  campos.forEach(function (c) {
+    var el = c.el || document.getElementById(c.id);
+    if (!el) return;
+    var v = (el.value || "").trim();
+    if (c.valido(v)) preenchidos++;
+  });
+
+  var pct = Math.round((preenchidos / total) * 100);
+  fill.style.width = pct + "%";
+  pctEl.textContent = pct + "%";
+  bar.setAttribute("aria-valuenow", pct);
+
+  // Cor por nível
+  fill.removeAttribute("data-pct");
+  if (pct < 40)       fill.setAttribute("data-pct", "low");
+  else if (pct < 80)  fill.setAttribute("data-pct", "mid");
+  else                fill.setAttribute("data-pct", "high");
+
+  // Habilita/desabilita botão de envio
+  var tudo = preenchidos === total;
+  btnEnviar.disabled = !tudo;
+  btnEnviar.setAttribute("aria-disabled", tudo ? "false" : "true");
+}
+
+// Observa mudanças em todos os campos do form
+form.addEventListener("input", atualizarProgresso);
+form.addEventListener("change", atualizarProgresso);
+
+// -------------------------------------------------------
+// Modal de Privacidade (LGPD)
+// -------------------------------------------------------
+(function () {
+  var modal     = document.getElementById("modalPrivacidade");
+  var btnAbrir  = document.getElementById("abrirPrivacidade");
+  var btnFechar = document.getElementById("fecharPrivacidade");
+  var btnAceitar= document.getElementById("aceitarPrivacidade");
+  if (!modal || !btnAbrir) return;
+
+  // Abre modal
+  btnAbrir.addEventListener("click", function () {
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    // Foca o botão fechar para acessibilidade
+    setTimeout(function () { btnFechar && btnFechar.focus(); }, 50);
+  });
+
+  // Fecha modal (botão X)
+  btnFechar && btnFechar.addEventListener("click", fecharModal);
+
+  // Aceitar e marcar checkbox automaticamente
+  btnAceitar && btnAceitar.addEventListener("click", function () {
+    if (lgpdCheck) {
+      lgpdCheck.checked = true;
+      lgpdStatus.textContent = "";
+    }
+    fecharModal();
+    atualizarProgresso();
+  });
+
+  // Fecha clicando fora
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) fecharModal();
+  });
+
+  // Fecha com Esc
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !modal.hidden) fecharModal();
+  });
+
+  function fecharModal() {
+    modal.hidden = true;
+    document.body.style.overflow = "";
+    btnAbrir.focus();
+  }
+})();
+
+// LGPD checkbox — feedback visual
+lgpdCheck && lgpdCheck.addEventListener("change", function () {
+  if (lgpdCheck.checked) {
+    lgpdStatus.textContent = "";
+  }
+  atualizarProgresso();
+});
+
+// -------------------------------------------------------
 // Envio do formulário
 // -------------------------------------------------------
 form.addEventListener("submit", async function (e) {
   e.preventDefault();
+
+  // Valida LGPD antes de qualquer coisa
+  if (!lgpdCheck || !lgpdCheck.checked) {
+    lgpdStatus.textContent = "⚠ Você precisa aceitar o Aviso de Privacidade para se inscrever.";
+    lgpdCheck && lgpdCheck.closest(".lgpd-wrap").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    return;
+  }
 
   const nome      = document.getElementById("nome").value.trim();
   const matricula = document.getElementById("matricula").value.trim();
@@ -416,7 +542,6 @@ form.addEventListener("submit", async function (e) {
 
   const payload = { nome, matricula, cpf, email, modalidade: jogo, campoExtraLabel, campoExtraValor };
 
-  const btnEnviar = form.querySelector('button[type="submit"]');
   btnEnviar.disabled = true;
   btnEnviar.textContent = "Enviando...";
 
@@ -429,11 +554,7 @@ form.addEventListener("submit", async function (e) {
     const dados = await res.json();
 
     if (res.ok) {
-      // Envia e-mail de confirmação via EmailJS direto para o aluno
       const nomeModalidadeEmail = nomesModalidade[jogo] || jogo;
-      const campoExtraTexto = campoExtraLabel && campoExtraValor
-        ? campoExtraLabel + ": " + campoExtraValor
-        : "—";
 
       emailjs.send("service_fhnacmg", "template_5v9ppbu", {
         to_email:          email,
@@ -452,7 +573,10 @@ form.addEventListener("submit", async function (e) {
       mostrarConfirmacao(email, jogo);
       form.reset();
       campoExtra.innerHTML = "";
+      if (lgpdCheck) lgpdCheck.checked = false;
       document.querySelectorAll(".game").forEach(function (c) { c.classList.remove("selecionado"); });
+      // Zera progresso
+      atualizarProgresso();
       carregarContadores();
     } else {
       mostrarMensagem("❌ " + dados.erro, "erro");
@@ -461,7 +585,8 @@ form.addEventListener("submit", async function (e) {
     mostrarMensagem("❌ Não foi possível conectar ao servidor. Verifique se ele está rodando.", "erro");
   } finally {
     btnEnviar.disabled = false;
-    btnEnviar.textContent = "Enviar inscrição";
+    btnEnviar.textContent = "Enviar inscrição →";
+    atualizarProgresso();
   }
 });
 
@@ -660,35 +785,39 @@ function clearStatus(statusId, inputEl) {
 // Nome — mínimo 3 chars e pelo menos duas palavras
 document.getElementById("nome").addEventListener("input", function () {
   var v = this.value.trim();
-  if (!v) { clearStatus("status-nome", this); return; }
+  if (!v) { clearStatus("status-nome", this); atualizarProgresso(); return; }
   var ok = v.length >= 3 && v.split(" ").filter(function (w) { return w.length > 0; }).length >= 2;
   setStatus("status-nome", this, ok ? "ok" : "error", ok ? "✓" : "✗");
+  atualizarProgresso();
 });
 
 // Matrícula — ao menos 4 caracteres
 document.getElementById("matricula").addEventListener("input", function () {
   var v = this.value.trim();
-  if (!v) { clearStatus("status-matricula", this); return; }
+  if (!v) { clearStatus("status-matricula", this); atualizarProgresso(); return; }
   var ok = v.length >= 4;
   setStatus("status-matricula", this, ok ? "ok" : "error", ok ? "✓" : "✗");
+  atualizarProgresso();
 });
 
 // CPF — validação completa ao terminar de digitar
 document.getElementById("cpf").addEventListener("input", function () {
   var v = this.value.trim();
-  if (!v) { clearStatus("status-cpf", this); return; }
+  if (!v) { clearStatus("status-cpf", this); atualizarProgresso(); return; }
   // Só valida quando tiver os 14 chars (000.000.000-00)
-  if (v.length < 14) { clearStatus("status-cpf", this); return; }
+  if (v.length < 14) { clearStatus("status-cpf", this); atualizarProgresso(); return; }
   var ok = cpfValido(v);
   setStatus("status-cpf", this, ok ? "ok" : "error", ok ? "✓" : "✗");
+  atualizarProgresso();
 });
 
 // E-mail — regex simples
 document.getElementById("email").addEventListener("input", function () {
   var v = this.value.trim();
-  if (!v) { clearStatus("status-email", this); return; }
+  if (!v) { clearStatus("status-email", this); atualizarProgresso(); return; }
   var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) && v.length <= 200;
   setStatus("status-email", this, ok ? "ok" : "error", ok ? "✓" : "✗");
+  atualizarProgresso();
 });
 
 // -------------------------------------------------------
