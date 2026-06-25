@@ -95,7 +95,7 @@ const observerMenu = new IntersectionObserver(function (entries) {
       });
     }
   });
-}, { rootMargin: "-40% 0px -55% 0px" });
+}, { rootMargin: "-30% 0px -60% 0px" });
 
 secoes.forEach(function (s) { observerMenu.observe(s); });
 
@@ -171,7 +171,17 @@ navLinks.querySelectorAll("a").forEach(function (link) {
   link.addEventListener("click", function () {
     navLinks.classList.remove("aberto");
     menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.setAttribute("aria-label", "Abrir menu");
   });
+});
+
+// Fecha menu ao clicar fora da navbar
+document.addEventListener("click", function (e) {
+  if (!e.target.closest(".navbar")) {
+    navLinks.classList.remove("aberto");
+    menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.setAttribute("aria-label", "Abrir menu");
+  }
 });
 
 // -------------------------------------------------------
@@ -263,10 +273,10 @@ modalidadeSelect.addEventListener("change", function () {
   campoExtra.innerHTML = "";
 
   const campos = {
-    lol:      { label: "Rota principal",   opcoes: ["Topo", "Selva", "Meio", "ADC", "Suporte"] },
-    valorant: { label: "Função principal", opcoes: ["Duelista", "Controlador", "Iniciador", "Sentinela"] },
-    cs2:      { label: "Função no time",   opcoes: ["IGL", "AWPer", "Entry Fragger", "Support", "Lurker"] },
-    freefire: { label: "Função no squad",  opcoes: ["Rushador", "Suporte", "Atirador", "Capitão"] },
+    lol:      { label: "Rota principal",   opcoes: ["Topo", "Selva", "Meio", "ADC", "Suporte", "qualquer uma"] },
+    valorant: { label: "Função principal", opcoes: ["Duelista", "Controlador", "Iniciador", "Sentinela", "qualquer uma"] },
+    cs2:      { label: "Função no time",   opcoes: ["IGL", "AWPer", "Entry Fragger", "Support", "Lurker", "qualquer uma"] },
+    freefire: { label: "Função no squad",  opcoes: ["Rushador", "Suporte", "Atirador", "Capitão", "qualquer uma"] },
     xadrez:   null,
   };
 
