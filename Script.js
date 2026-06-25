@@ -3,10 +3,7 @@
 // -------------------------------------------------------
 const modalidadeSelect = document.getElementById("modalidade");
 const campoExtra       = document.getElementById("campo-extra");
-const contrasteBtn     = document.getElementById("contrasteBtn");
 const form             = document.getElementById("formInscricao");
-const menuToggle       = document.getElementById("menuToggle");
-const navLinks         = document.getElementById("navLinks");
 const cpfInput         = document.getElementById("cpf");
 
 // -------------------------------------------------------
@@ -79,25 +76,82 @@ async function carregarContadores() {
 carregarContadores();
 
 // -------------------------------------------------------
-// 3. Scroll spy — destaca link ativo no menu
+// NAVBAR iOS — scroll spy, header blur, drawer mobile
 // -------------------------------------------------------
-const secoes = document.querySelectorAll("section[id]");
-const linksMenu = document.querySelectorAll(".nav-links a[href^='#']");
 
-const observerMenu = new IntersectionObserver(function (entries) {
+// Header: adiciona classe .scrolled ao rolar
+window.addEventListener("scroll", function () {
+  var header = document.getElementById("header");
+  if (header) header.classList.toggle("scrolled", window.scrollY > 10);
+}, { passive: true });
+
+// Scroll spy — destaca link ativo na pill e no drawer
+var secoes    = document.querySelectorAll("section[id], div[id]");
+var pillLinks = document.querySelectorAll(".nav-pill-item");
+
+var observerMenu = new IntersectionObserver(function (entries) {
   entries.forEach(function (entry) {
     if (entry.isIntersecting) {
-      linksMenu.forEach(function (link) {
-        link.classList.remove("ativo");
-        if (link.getAttribute("href") === "#" + entry.target.id) {
-          link.classList.add("ativo");
-        }
+      var id = "#" + entry.target.id;
+      pillLinks.forEach(function (link) {
+        var match = link.getAttribute("href") === id;
+        link.classList.toggle("ativo", match);
+      });
+      document.querySelectorAll(".drawer-links a").forEach(function (link) {
+        var match = link.getAttribute("href") === id;
+        link.classList.toggle("ativo", match);
       });
     }
   });
-}, { rootMargin: "-30% 0px -60% 0px" });
+}, { rootMargin: "-35% 0px -55% 0px" });
 
 secoes.forEach(function (s) { observerMenu.observe(s); });
+
+// Hamburguer + drawer
+var menuToggle  = document.getElementById("menuToggle");
+var navDrawer   = document.getElementById("navDrawer");
+var navOverlay  = document.getElementById("navOverlay");
+
+function abrirDrawer() {
+  navDrawer.classList.add("aberto");
+  navOverlay.classList.add("aberto");
+  navDrawer.setAttribute("aria-hidden", "false");
+  menuToggle.classList.add("aberto");
+  menuToggle.setAttribute("aria-expanded", "true");
+  menuToggle.setAttribute("aria-label", "Fechar menu");
+  document.body.style.overflow = "hidden";
+}
+
+function fecharDrawer() {
+  navDrawer.classList.remove("aberto");
+  navOverlay.classList.remove("aberto");
+  navDrawer.setAttribute("aria-hidden", "true");
+  menuToggle.classList.remove("aberto");
+  menuToggle.setAttribute("aria-expanded", "false");
+  menuToggle.setAttribute("aria-label", "Abrir menu");
+  document.body.style.overflow = "";
+}
+
+menuToggle.addEventListener("click", function () {
+  navDrawer.classList.contains("aberto") ? fecharDrawer() : abrirDrawer();
+});
+
+// Fecha com Escape
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") fecharDrawer();
+});
+
+// -------------------------------------------------------
+// Contraste
+// -------------------------------------------------------
+var contrasteBtn = document.getElementById("contrasteBtn");
+if (localStorage.getItem("contraste") === "ativo") {
+  document.body.classList.add("contraste");
+}
+contrasteBtn.addEventListener("click", function () {
+  var ativo = document.body.classList.toggle("contraste");
+  localStorage.setItem("contraste", ativo ? "ativo" : "");
+});
 
 // -------------------------------------------------------
 // 4. Animação de entrada suave nas seções
@@ -159,30 +213,8 @@ modalidadeSelect.addEventListener("change", function () {
 });
 
 // -------------------------------------------------------
-// Menu hamburguer (mobile)
+// Menu hamburguer — tratado pelo novo código iOS acima
 // -------------------------------------------------------
-menuToggle.addEventListener("click", function () {
-  const aberto = navLinks.classList.toggle("aberto");
-  menuToggle.setAttribute("aria-expanded", aberto);
-  menuToggle.setAttribute("aria-label", aberto ? "Fechar menu" : "Abrir menu");
-});
-
-navLinks.querySelectorAll("a").forEach(function (link) {
-  link.addEventListener("click", function () {
-    navLinks.classList.remove("aberto");
-    menuToggle.setAttribute("aria-expanded", "false");
-    menuToggle.setAttribute("aria-label", "Abrir menu");
-  });
-});
-
-// Fecha menu ao clicar fora da navbar
-document.addEventListener("click", function (e) {
-  if (!e.target.closest(".navbar")) {
-    navLinks.classList.remove("aberto");
-    menuToggle.setAttribute("aria-expanded", "false");
-    menuToggle.setAttribute("aria-label", "Abrir menu");
-  }
-});
 
 // -------------------------------------------------------
 // Máscara de CPF
@@ -510,17 +542,7 @@ function mostrarMensagem(texto, tipo) {
   setTimeout(function () { msg.remove(); }, 6000);
 }
 
-// -------------------------------------------------------
-// Alto contraste — persiste via localStorage
-// -------------------------------------------------------
-if (localStorage.getItem("contraste") === "ativo") {
-  document.body.classList.add("contraste");
-}
-
-contrasteBtn.addEventListener("click", function () {
-  const ativo = document.body.classList.toggle("contraste");
-  localStorage.setItem("contraste", ativo ? "ativo" : "");
-});
+// Alto contraste — tratado pelo novo código iOS da navbar acima
 
 // -------------------------------------------------------
 // Avatares da equipe — iniciais + gradiente por hue
