@@ -29,12 +29,48 @@ function mostrarSkeletonContadores() {
   }
 }
 
+// Utilitário: fetch com timeout configurável
+function fetchComTimeout(url, opcoes, ms) {
+  var controller = new AbortController();
+  var timer = setTimeout(function () { controller.abort(); }, ms);
+  return fetch(url, Object.assign({}, opcoes, { signal: controller.signal }))
+    .finally(function () { clearTimeout(timer); });
+}
+
+// Exibe/oculta o banner de cold start
+function mostrarBannerColdStart(visivel) {
+  var banner = document.getElementById("banner-cold-start");
+  if (!banner) return;
+  if (visivel) {
+    banner.hidden = false;
+    // Anima entrada
+    requestAnimationFrame(function () { banner.classList.add("visivel"); });
+  } else {
+    banner.classList.remove("visivel");
+    // Remove do DOM após a transição
+    setTimeout(function () { banner.hidden = true; }, 400);
+  }
+}
+
 async function carregarContadores() {
   mostrarSkeletonContadores();
+
+  // Se a requisição demorar mais de 4s, avisa o usuário que o servidor está acordando
+  var coldStartTimer = setTimeout(function () {
+    mostrarBannerColdStart(true);
+  }, 4000);
+
   try {
-    const res   = await fetch("https://e-jeniff.onrender.com/api/estatisticas");
+    const res = await fetchComTimeout(
+      "https://e-jeniff.onrender.com/api/estatisticas",
+      {},
+      35000 // 35s — tempo máximo de cold start do Render free
+    );
+
+    clearTimeout(coldStartTimer);
+    mostrarBannerColdStart(false);
+
     if (!res.ok) {
-      // servidor offline — limpa skeleton com fallback
       document.querySelectorAll(".game-inscritos").forEach(function (el) {
         el.classList.remove("skeleton-loading");
         el.textContent = "— inscritos";
@@ -43,9 +79,9 @@ async function carregarContadores() {
       if (statTotal) { statTotal.classList.remove("skeleton-loading"); statTotal.textContent = "—"; }
       return;
     }
+
     const dados = await res.json();
 
-    // Zera todos primeiro
     document.querySelectorAll(".game-inscritos").forEach(function (el) {
       el.classList.remove("skeleton-loading");
       el.textContent = "0 inscritos";
@@ -61,21 +97,28 @@ async function carregarContadores() {
       }
     });
 
-    // Atualiza stat total no hero
     const statTotal = document.getElementById("stat-total");
     if (statTotal) {
       statTotal.classList.remove("skeleton-loading");
       statTotal.textContent = total > 0 ? total : "0";
     }
 
-  } catch {
-    // Servidor offline — remove skeleton silenciosamente
+  } catch (err) {
+    clearTimeout(coldStartTimer);
+    mostrarBannerColdStart(false);
+
+    var motivo = (err && err.name === "AbortError")
+      ? "O servidor demorou demais para responder."
+      : "Servidor temporariamente indisponível.";
+
     document.querySelectorAll(".game-inscritos").forEach(function (el) {
       el.classList.remove("skeleton-loading");
       el.textContent = "— inscritos";
     });
     const statTotal = document.getElementById("stat-total");
     if (statTotal) { statTotal.classList.remove("skeleton-loading"); statTotal.textContent = "—"; }
+
+    console.warn("carregarContadores:", motivo, err);
   }
 }
 
@@ -424,6 +467,33 @@ function atualizarProgresso() {
   var tudo = preenchidos === total;
   btnEnviar.disabled = !tudo;
   btnEnviar.setAttribute("aria-disabled", tudo ? "false" : "true");
+
+  // Hint de campos pendentes
+  var hintEl = document.getElementById("btnEnviarHint");
+  if (hintEl) {
+    if (tudo) {
+      hintEl.textContent = "";
+    } else {
+      var pendentes = [];
+      campos.forEach(function (c) {
+        var el = c.el || document.getElementById(c.id);
+        if (!el) return;
+        var v = (el.value || "").trim();
+        if (!c.valido(v)) {
+          if (c.id === "nome")       pendentes.push("nome completo");
+          else if (c.id === "matricula") pendentes.push("matrícula");
+          else if (c.id === "cpf")   pendentes.push("CPF válido");
+          else if (c.id === "email") pendentes.push("e-mail");
+          else if (c.id === "modalidade") pendentes.push("modalidade");
+          else if (el === lgpdCheck) pendentes.push("aceite da privacidade");
+          else pendentes.push("função/posição");
+        }
+      });
+      hintEl.textContent = pendentes.length
+        ? "⚠ Pendente: " + pendentes.join(", ") + "."
+        : "";
+    }
+  }
 }
 
 // Observa mudanças em todos os campos do form
@@ -545,12 +615,26 @@ form.addEventListener("submit", async function (e) {
   btnEnviar.disabled = true;
   btnEnviar.textContent = "Enviando...";
 
+  // Se demorar mais de 5s, avisa que o servidor pode estar acordando
+  var submitColdTimer = setTimeout(function () {
+    mostrarBannerColdStart(true);
+    btnEnviar.textContent = "Aguardando servidor...";
+  }, 5000);
+
   try {
-    const res   = await fetch("https://e-jeniff.onrender.com/api/inscricoes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    const res = await fetchComTimeout(
+      "https://e-jeniff.onrender.com/api/inscricoes",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+      40000 // 40s — dá margem para o cold start + processamento
+    );
+
+    clearTimeout(submitColdTimer);
+    mostrarBannerColdStart(false);
+
     const dados = await res.json();
 
     if (res.ok) {
@@ -581,9 +665,16 @@ form.addEventListener("submit", async function (e) {
     } else {
       mostrarMensagem("❌ " + dados.erro, "erro");
     }
-  } catch {
-    mostrarMensagem("❌ Não foi possível conectar ao servidor. Verifique se ele está rodando.", "erro");
+  } catch (err) {
+    clearTimeout(submitColdTimer);
+    mostrarBannerColdStart(false);
+    var motivo = (err && err.name === "AbortError")
+      ? "❌ O servidor demorou demais para responder. Tente novamente em alguns instantes."
+      : "❌ Não foi possível conectar ao servidor. Verifique se ele está rodando.";
+    mostrarMensagem(motivo, "erro");
   } finally {
+    clearTimeout(submitColdTimer);
+    mostrarBannerColdStart(false);
     btnEnviar.disabled = false;
     btnEnviar.textContent = "Enviar inscrição →";
     atualizarProgresso();

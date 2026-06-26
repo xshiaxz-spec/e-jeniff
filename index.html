@@ -13,6 +13,12 @@
 </head>
 <body>
 
+  <!-- Banner de cold start do servidor -->
+  <div id="banner-cold-start" class="banner-cold-start" role="status" aria-live="polite" hidden>
+    <span class="banner-cold-start__icon" aria-hidden="true">⏳</span>
+    <span>O servidor está acordando, aguarde alguns instantes…</span>
+  </div>
+
   <!-- Barra de progresso de scroll -->
   <div id="scroll-progress" aria-hidden="true"></div>
 
@@ -233,6 +239,32 @@
           </div>
         </div>
 
+        <!-- Accordeon mobile — visível apenas em telas pequenas -->
+        <details class="inscricao-accordeon" id="accordeonComoFunciona">
+          <summary class="inscricao-accordeon-summary">
+            <span>Como funciona a inscrição?</span>
+            <span class="accordeon-icon" aria-hidden="true">▾</span>
+          </summary>
+          <div class="inscricao-accordeon-body">
+            <div class="info-step">
+              <span class="step-num">1</span>
+              Preencha seus dados pessoais
+            </div>
+            <div class="info-step">
+              <span class="step-num">2</span>
+              Escolha a modalidade que deseja disputar
+            </div>
+            <div class="info-step">
+              <span class="step-num">3</span>
+              Informe sua função/posição no jogo
+            </div>
+            <div class="info-step">
+              <span class="step-num">4</span>
+              Envie e aguarde a confirmação por e-mail
+            </div>
+          </div>
+        </details>
+
         <div class="fade-up">
           <form class="form" id="formInscricao" novalidate>
             <label for="nome">
@@ -308,7 +340,10 @@
               <span class="lgpd-status" id="lgpd-status" aria-live="polite"></span>
             </div>
 
-            <button type="submit" class="btn" id="btnEnviar" style="justify-content: center;" disabled aria-disabled="true">Enviar inscrição →</button>
+            <div class="btn-enviar-wrap">
+              <button type="submit" class="btn" id="btnEnviar" style="justify-content: center;" disabled aria-disabled="true">Enviar inscrição →</button>
+              <span class="btn-enviar-hint" id="btnEnviarHint" aria-live="polite"></span>
+            </div>
           </form>
 
           <!-- Modal de Privacidade -->
@@ -404,7 +439,7 @@
           <div class="member-card">
             <div class="member-avatar" data-initials="HS" data-hue="200"></div>
             <div class="member-info">
-              <span class="member-name">Henri corleth</span>
+              <span class="member-name">Henri Corleth</span>
               <span class="member-tag member-tag--research">🔬 Pesquisa & Aplicação</span>
             </div>
           </div>
@@ -449,8 +484,6 @@
         </div>
       </div>
     </div>
-
-  </main>
 
     <!-- LOCALIZAÇÃO -->
     <section id="localizacao" class="section fade-up">
@@ -503,6 +536,8 @@
         </div>
       </div>
     </section>
+
+  </main>
 
   <!-- FOOTER -->
   <footer class="footer">

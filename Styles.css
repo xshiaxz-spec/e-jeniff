@@ -2091,3 +2091,141 @@ input.valid:focus {
 input.invalid:focus {
   box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15) !important;
 }
+
+/* =====================================================
+   INSCRIÇÃO — ACCORDEON MOBILE
+   ===================================================== */
+.inscricao-accordeon {
+  display: none; /* oculto em desktop */
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.inscricao-accordeon-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+  list-style: none;
+  user-select: none;
+  transition: background var(--transition);
+}
+
+.inscricao-accordeon-summary::-webkit-details-marker { display: none; }
+
+.inscricao-accordeon-summary:hover,
+.inscricao-accordeon[open] .inscricao-accordeon-summary {
+  background: var(--green-glow);
+  color: var(--green);
+}
+
+.accordeon-icon {
+  color: var(--green);
+  font-size: 1.1rem;
+  transition: transform var(--transition);
+  flex-shrink: 0;
+}
+
+.inscricao-accordeon[open] .accordeon-icon {
+  transform: rotate(180deg);
+}
+
+.inscricao-accordeon-body {
+  padding: 6px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 768px) {
+  .inscricao-accordeon { display: block; }
+}
+
+/* =====================================================
+   BOTÃO ENVIAR — HINT DE CAMPOS PENDENTES
+   ===================================================== */
+.btn-enviar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-enviar-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-height: 1.2em;
+  padding: 0 2px;
+  transition: opacity var(--transition);
+}
+
+.btn-enviar-hint:empty { opacity: 0; }
+
+#btnEnviar:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* =====================================================
+   BANNER COLD START (Render free tier)
+   ===================================================== */
+.banner-cold-start {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(10, 21, 32, 0.96);
+  border: 1px solid rgba(0, 230, 118, 0.35);
+  border-radius: var(--radius-md);
+  padding: 13px 22px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  white-space: nowrap;
+}
+
+.banner-cold-start.visivel {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.banner-cold-start__icon {
+  font-size: 1rem;
+  animation: spin-slow 2.5s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+  .banner-cold-start {
+    bottom: 16px;
+    font-size: 0.82rem;
+    padding: 11px 16px;
+    white-space: normal;
+    max-width: calc(100vw - 32px);
+    text-align: center;
+    justify-content: center;
+  }
+}
