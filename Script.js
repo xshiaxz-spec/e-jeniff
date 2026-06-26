@@ -127,23 +127,33 @@ carregarContadores();
 // -------------------------------------------------------
 // 3. Scroll spy — destaca link ativo no menu
 // -------------------------------------------------------
-const secoes = document.querySelectorAll("section[id]");
+const secoes = document.querySelectorAll("section[id], div[id]");
 const linksMenu = document.querySelectorAll(".nav-links a[href^='#']");
 
-const observerMenu = new IntersectionObserver(function (entries) {
-  entries.forEach(function (entry) {
-    if (entry.isIntersecting) {
-      linksMenu.forEach(function (link) {
-        link.classList.remove("ativo");
-        if (link.getAttribute("href") === "#" + entry.target.id) {
-          link.classList.add("ativo");
-        }
-      });
+function atualizarScrollSpy() {
+  const scrollY = window.scrollY + window.innerHeight * 0.25;
+
+  let secaoAtiva = null;
+  secoes.forEach(function (s) {
+    const top = s.offsetTop;
+    const bottom = top + s.offsetHeight;
+    if (scrollY >= top && scrollY < bottom) {
+      secaoAtiva = s.id;
     }
   });
-}, { rootMargin: "-30% 0px -60% 0px" });
 
-secoes.forEach(function (s) { observerMenu.observe(s); });
+  linksMenu.forEach(function (link) {
+    const href = link.getAttribute("href").replace("#", "");
+    if (href === secaoAtiva) {
+      link.classList.add("ativo");
+    } else {
+      link.classList.remove("ativo");
+    }
+  });
+}
+
+window.addEventListener("scroll", atualizarScrollSpy, { passive: true });
+atualizarScrollSpy();
 
 // -------------------------------------------------------
 // 4. Animação de entrada suave nas seções
