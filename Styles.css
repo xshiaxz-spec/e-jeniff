@@ -29,7 +29,7 @@
    ===================================================== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 
 body {
   font-family: 'Inter', Arial, sans-serif;
@@ -51,46 +51,55 @@ body {
 }
 
 /* =====================================================
-   HEADER / NAV
+   HEADER / NAV — pill flutuante
    ===================================================== */
 .header {
   position: sticky;
-  top: 0;
+  top: 16px;
   z-index: 200;
-  background: rgba(5, 12, 18, 0.75);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--border);
+  /* sem fundo próprio — a pill carrega o visual */
+  background: transparent;
+  pointer-events: none; /* cliques passam pela área vazia */
 }
 
 .navbar {
-  max-width: 1200px;
-  margin: auto;
-  padding: 0 24px;
-  height: 72px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 12px;
+
+  /* A pill */
+  background: rgba(10, 20, 32, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 230, 118, 0.14);
+  border-radius: 100px;
+  padding: 5px 10px 5px 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04);
+  pointer-events: all; /* reativa cliques dentro da pill */
 }
 
 .navbar-brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
 .logo-iff {
-  height: 36px;
+  height: 20px;
   width: auto;
   object-fit: contain;
   filter: brightness(0) invert(1);
-  opacity: 0.85;
+  opacity: 0.75;
 }
 
 .logo-ejiniff {
-  height: 52px;
+  height: 26px;
   width: auto;
   object-fit: contain;
 }
@@ -98,18 +107,19 @@ body {
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 4px;
+  gap: 2px;
 }
 
 .nav-links a {
   color: var(--text-muted);
   text-decoration: none;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.84rem;
   letter-spacing: 0.02em;
-  padding: 6px 14px;
-  border-radius: var(--radius-sm);
+  padding: 5px 11px;
+  border-radius: 100px;
   transition: color var(--transition), background var(--transition);
+  white-space: nowrap;
 }
 
 .nav-links a:hover,
@@ -120,8 +130,21 @@ body {
   outline: none;
 }
 
-.nav-links a.ativo {
-  font-weight: 600;
+.nav-links a.ativo { font-weight: 600; }
+
+/* Link "Minha Área" — destaque especial */
+.nav-links a.nav-minha-area {
+  color: #03100a;
+  background: linear-gradient(135deg, var(--green-dark), var(--green));
+  border-radius: 100px;
+  font-weight: 700;
+  padding: 6px 16px;
+}
+.nav-links a.nav-minha-area:hover,
+.nav-links a.nav-minha-area:focus {
+  background: linear-gradient(135deg, var(--green), var(--green-dark));
+  color: #03100a;
+  filter: brightness(1.1);
 }
 
 /* Menu hamburguer (mobile) */
@@ -130,9 +153,9 @@ body {
   background: transparent;
   border: 1px solid var(--border-hover);
   color: var(--green);
-  font-size: 1.3rem;
-  padding: 7px 11px;
-  border-radius: var(--radius-sm);
+  font-size: 1.2rem;
+  padding: 6px 10px;
+  border-radius: 100px;
   cursor: pointer;
   transition: background var(--transition);
 }
@@ -183,16 +206,21 @@ body {
 }
 
 .btn-small {
-  padding: 9px 16px;
-  font-size: 0.82rem;
+  padding: 5px 12px;
+  font-size: 0.78rem;
   flex-shrink: 0;
   background: transparent;
-  color: var(--green);
-  border: 1px solid var(--border-hover);
+  color: var(--text-muted);
+  border: 1px solid var(--border-soft);
+  border-radius: 100px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .btn-small:hover, .btn-small:focus {
   background: var(--green-glow);
+  color: var(--green);
+  border-color: var(--border);
   box-shadow: none;
   transform: none;
 }
@@ -965,8 +993,19 @@ body.contraste .btn:hover { filter: brightness(1.2); }
   .navbar {
     flex-wrap: wrap;
     height: auto;
-    padding: 14px 20px;
+    padding: 12px 16px;
+    border-radius: 22px;
     gap: 12px;
+    margin: 0 12px;
+  }
+
+  /* links dentro do menu aberto — retornam ao radius menor */
+  .nav-links a {
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+  }
+  .nav-links a.nav-minha-area {
+    border-radius: var(--radius-sm);
   }
 
   /* Contraste btn fica visível e alinhado */
@@ -1040,9 +1079,9 @@ body.contraste .btn:hover { filter: brightness(1.2); }
 }
 
 @media (max-width: 480px) {
-  .navbar { padding: 12px 16px; }
-  .logo-ejiniff { height: 42px; }
-  .logo-iff { height: 28px; }
+  .navbar { padding: 10px 14px; border-radius: 18px; margin: 0 8px; }
+  .logo-ejiniff { height: 34px; }
+  .logo-iff { height: 22px; }
 
   .hero-content { padding: 48px 16px; }
   .tag { font-size: 0.65rem; padding: 4px 10px; }

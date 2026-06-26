@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minha Área — e-JINIFF 2026</title>
+  <link rel="icon" type="image/png" href="/img/ejiniff2026-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green:       #00e676;
+      --green-dark:  #00a855;
+      --green-glow:  rgba(0,230,118,0.13);
+      --bg:          #050c12;
+      --bg2:         #0a1520;
+      --bg3:         #0f1e2e;
+      --surface:     #111c2a;
+      --border:      rgba(0,230,118,0.16);
+      --border-soft: rgba(255,255,255,0.07);
+      --text:        #e8f0f8;
+      --text-muted:  #7a9bb5;
+      --text-dim:    #3d5a72;
+      --red:         #f87171;
+      --yellow:      #fbbf24;
+      --blue:        #60a5fa;
+      --radius-sm:   8px;
+      --radius-md:   12px;
+      --radius-lg:   18px;
+      --shadow:      0 8px 32px rgba(0,0,0,0.5);
+      --transition:  0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── LOGIN ── */
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 100%, rgba(0,168,85,0.15) 0%, transparent 70%),
+        var(--bg);
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 48px 40px;
+      width: 100%; max-width: 420px;
+      text-align: center;
+      box-shadow: var(--shadow), 0 0 60px rgba(0,230,118,0.06);
+      animation: fadeUp 0.4s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .login-logo { height: 60px; width: auto; object-fit: contain; margin-bottom: 20px; }
+
+    .login-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--text); margin-bottom: 4px;
+    }
+
+    .login-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 32px; }
+
+    .login-field {
+      display: grid; gap: 7px; text-align: left; margin-bottom: 20px;
+    }
+    .login-field label {
+      font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
+      letter-spacing: 0.03em;
+    }
+    .login-field input {
+      width: 100%; padding: 13px 16px;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem; font-family: 'Inter', sans-serif;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .login-field input:focus {
+      outline: none; border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0,230,118,0.12);
+    }
+
+    .login-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      color: #03100a; border: none; border-radius: var(--radius-sm);
+      font-size: 0.95rem; font-weight: 700; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,230,118,0.3); }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .login-erro { color: var(--red); font-size: 0.85rem; margin-top: 14px; min-height: 20px; }
+
+    .login-back {
+      display: block; margin-top: 20px;
+      color: var(--text-muted); font-size: 0.83rem;
+      text-decoration: none; transition: color var(--transition);
+    }
+    .login-back:hover { color: var(--green); }
+
+    /* ── DASHBOARD ── */
+    .dashboard { display: none; min-height: 100vh; flex-direction: column; }
+    .dashboard.ativo { display: flex; }
+
+    /* Header */
+    .dash-header {
+      background: rgba(5,12,18,0.85);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .dash-header-inner {
+      max-width: 1100px; margin: auto;
+      padding: 0 24px; height: 66px;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+    }
+    .dash-brand { display: flex; align-items: center; gap: 12px; }
+    .dash-brand img { height: 44px; width: auto; object-fit: contain; }
+    .dash-brand-text {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      color: var(--text-muted); letter-spacing: 0.05em;
+    }
+    .dash-user {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .dash-user-name {
+      font-size: 0.85rem; color: var(--text-muted);
+    }
+    .dash-user-name strong { color: var(--green); }
+    .btn-logout {
+      background: transparent; border: 1px solid var(--border-soft);
+      color: var(--text-muted); padding: 7px 14px; border-radius: var(--radius-sm);
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background var(--transition), color var(--transition);
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+    /* Body */
+    .dash-body { max-width: 1100px; margin: auto; padding: 36px 24px; flex: 1; width: 100%; }
+
+    /* Welcome */
+    .dash-welcome {
+      margin-bottom: 36px;
+    }
+    .dash-welcome h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700; color: var(--text); margin-bottom: 6px;
+    }
+    .dash-welcome h1 span { color: var(--green); }
+    .dash-welcome p { font-size: 0.9rem; color: var(--text-muted); }
+
+    /* Grid principal */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Cards */
+    .dash-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .dash-card-header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .dash-card-header h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: var(--text); letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .dash-card-icon { font-size: 1.1rem; }
+    .dash-card-body { padding: 20px 22px; }
+
+    /* Inscrições */
+    .inscricao-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      transition: border-color var(--transition);
+    }
+    .inscricao-item:last-child { margin-bottom: 0; }
+    .inscricao-item:hover { border-color: rgba(0,230,118,0.35); }
+
+    .inscricao-modalidade {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .inscricao-funcao { font-size: 0.8rem; color: var(--green); margin-bottom: 4px; }
+    .inscricao-data { font-size: 0.75rem; color: var(--text-dim); }
+
+    /* Badge de modalidade */
+    .mod-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 100px;
+      font-size: 0.72rem; font-weight: 600;
+      background: var(--green-glow); color: var(--green);
+      border: 1px solid rgba(0,230,118,0.22);
+    }
+
+    /* Jogos */
+    .jogo-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      transition: border-color var(--transition);
+      position: relative;
+    }
+    .jogo-card:last-child { margin-bottom: 0; }
+    .jogo-card:hover { border-color: rgba(0,230,118,0.3); }
+
+    .jogo-status-dot {
+      position: absolute; top: 18px; right: 18px;
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .jogo-status-dot.agendado  { background: var(--yellow); box-shadow: 0 0 6px rgba(251,191,36,0.6); }
+    .jogo-status-dot.em_andamento { background: var(--green); box-shadow: 0 0 6px rgba(0,230,118,0.6); animation: pulseGlow 1.5s infinite; }
+    .jogo-status-dot.concluido { background: var(--blue); }
+    .jogo-status-dot.cancelado { background: var(--red); }
+
+    @keyframes pulseGlow {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.6); }
+    }
+
+    .jogo-titulo {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700; color: var(--text);
+      margin-bottom: 8px; padding-right: 20px;
+    }
+
+    .jogo-meta {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 8px;
+    }
+    .jogo-meta-item {
+      font-size: 0.78rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .jogo-meta-item .icon { font-size: 0.85rem; }
+
+    .jogo-resultado {
+      margin-top: 10px; padding: 8px 12px;
+      background: rgba(96,165,250,0.08);
+      border: 1px solid rgba(96,165,250,0.2);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem; color: var(--blue);
+      font-weight: 600;
+    }
+
+    .jogo-obs {
+      margin-top: 8px; font-size: 0.78rem;
+      color: var(--text-dim); line-height: 1.5;
+      font-style: italic;
+    }
+
+    /* Status label */
+    .status-label {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 9px; border-radius: 100px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .status-label.agendado   { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.25); }
+    .status-label.em_andamento { background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+    .status-label.concluido  { background: rgba(96,165,250,0.1); color: var(--blue); border: 1px solid rgba(96,165,250,0.25); }
+    .status-label.cancelado  { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.25); }
+
+    /* Vazio */
+    .vazio {
+      text-align: center; padding: 40px 20px;
+      color: var(--text-dim); font-size: 0.88rem;
+    }
+    .vazio .vazio-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+
+    /* Loading */
+    .loading-dots {
+      text-align: center; padding: 30px;
+      color: var(--green); font-size: 0.88rem;
+    }
+    .loading-dots::after {
+      content: '';
+      display: inline-block; width: 12px; height: 12px;
+      border: 2px solid var(--green-glow); border-top-color: var(--green);
+      border-radius: 50%; margin-left: 8px;
+      animation: spin 0.8s linear infinite; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Footer */
+    .dash-footer {
+      text-align: center; padding: 22px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim); font-size: 0.78rem;
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .dash-grid { grid-template-columns: 1fr; }
+      .dash-header-inner { padding: 0 16px; }
+      .dash-body { padding: 24px 16px; }
+      .login-card { padding: 36px 24px; }
+      .dash-brand-text { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <img src="/img/ejiniff2026-logo.png" alt="e-JINIFF 2026" class="login-logo" />
+    <h1 class="login-title">Minha Área</h1>
+    <p class="login-sub">Acesse com sua matrícula para ver suas inscrições e jogos</p>
+
+    <div class="login-field">
+      <label for="inputMatricula">Matrícula</label>
+      <input
+        type="text" id="inputMatricula"
+        placeholder="Ex: 2024001234"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false"
+      />
+    </div>
+
+    <button class="login-btn" id="btnLogin">Entrar →</button>
+    <div class="login-erro" id="loginErro"></div>
+    <a href="../index.html" class="login-back">← Voltar ao site</a>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div class="dashboard" id="dashboard">
+
+  <header class="dash-header">
+    <div class="dash-header-inner">
+      <div class="dash-brand">
+        <img src="/img/ejiniff2026-logo.png" alt="e-JINIFF" />
+        <span class="dash-brand-text">Minha Área</span>
+      </div>
+      <div class="dash-user">
+        <span class="dash-user-name">Olá, <strong id="nomeAluno">—</strong></span>
+        <button class="btn-logout" id="btnLogout">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="dash-body">
+    <div class="dash-welcome">
+      <h1>Bem-vindo, <span id="nomeAlunoWelcome">—</span> 👋</h1>
+      <p>Aqui você acompanha suas inscrições e os jogos que você vai disputar.</p>
+    </div>
+
+    <div class="dash-grid">
+
+      <!-- Inscrições -->
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <span class="dash-card-icon">🎮</span>
+          <h2>Minhas Inscrições</h2>
+        </div>
+        <div class="dash-card-body" id="listaInscricoes">
+          <div class="loading-dots">Carregando</div>
+        </div>
+      </div>
+
+      <!-- Jogos -->
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <span class="dash-card-icon">⚔️</span>
+          <h2>Meus Jogos & Horários</h2>
+        </div>
+        <div class="dash-card-body" id="listaJogos">
+          <div class="loading-dots">Carregando</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="dash-footer">
+    © 2026 e-JINIFF — IFF Campus Quissamã · Área do Inscrito
+  </footer>
+</div>
+
+<script>
+// ── Constantes ──────────────────────────────────────────────────────────────
+// Detecta automaticamente: local usa o servidor Express na 3000, produção usa o Render
+const API = (location.hostname === "127.0.0.1" || location.hostname === "localhost")
+  ? "http://localhost:3000"
+  : "https://e-jeniff.onrender.com";
+
+const NOMES_MOD = {
+  lol:      "League of Legends",
+  valorant: "Valorant",
+  cs2:      "Counter-Strike 2",
+  freefire: "Free Fire",
+  xadrez:   "Xadrez Arena",
+};
+
+const NOMES_STATUS = {
+  agendado:      "Agendado",
+  em_andamento:  "Em andamento",
+  concluido:     "Concluído",
+  cancelado:     "Cancelado",
+};
+
+// ── Estado ──────────────────────────────────────────────────────────────────
+var alunoToken = sessionStorage.getItem("alunoToken") || null;
+
+// ── Init ────────────────────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", function () {
+  if (alunoToken) {
+    mostrarDashboard();
+    carregarPerfil();
+  }
+
+  document.getElementById("inputMatricula").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") fazerLogin();
+  });
+
+  document.getElementById("btnLogin").addEventListener("click", fazerLogin);
+  document.getElementById("btnLogout").addEventListener("click", fazerLogout);
+});
+
+// ── Login ───────────────────────────────────────────────────────────────────
+async function fazerLogin() {
+  var mat   = document.getElementById("inputMatricula").value.trim();
+  var erro  = document.getElementById("loginErro");
+  var btn   = document.getElementById("btnLogin");
+  erro.textContent = "";
+
+  if (!mat) { erro.textContent = "Digite sua matrícula."; return; }
+
+  btn.disabled = true;
+  btn.textContent = "Entrando...";
+
+  try {
+    var res  = await fetch(API + "/api/aluno/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ matricula: mat }),
+    });
+    var dados = await res.json();
+
+    if (res.ok) {
+      alunoToken = dados.token;
+      sessionStorage.setItem("alunoToken", alunoToken);
+      mostrarDashboard();
+      carregarPerfil();
+    } else {
+      erro.textContent = dados.erro || "Erro ao autenticar.";
+    }
+  } catch {
+    erro.textContent = "Não foi possível conectar ao servidor.";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Entrar →";
+  }
+}
+
+// ── Logout ──────────────────────────────────────────────────────────────────
+async function fazerLogout() {
+  try {
+    await fetch(API + "/api/aluno/logout", {
+      method: "POST",
+      headers: { "x-aluno-token": alunoToken },
+    });
+  } catch {}
+  alunoToken = null;
+  sessionStorage.removeItem("alunoToken");
+  document.getElementById("dashboard").classList.remove("ativo");
+  document.getElementById("loginPage").style.display = "flex";
+  document.getElementById("inputMatricula").value = "";
+  document.getElementById("listaInscricoes").innerHTML = '<div class="loading-dots">Carregando</div>';
+  document.getElementById("listaJogos").innerHTML = '<div class="loading-dots">Carregando</div>';
+}
+
+// ── UI helpers ───────────────────────────────────────────────────────────────
+function mostrarDashboard() {
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("dashboard").classList.add("ativo");
+}
+
+// ── Carregar perfil ──────────────────────────────────────────────────────────
+async function carregarPerfil() {
+  try {
+    var res = await fetch(API + "/api/aluno/perfil", {
+      headers: { "x-aluno-token": alunoToken },
+    });
+
+    if (res.status === 401) {
+      fazerLogout();
+      return;
+    }
+
+    var dados = await res.json();
+    if (!res.ok) {
+      document.getElementById("listaInscricoes").innerHTML =
+        '<div class="vazio"><span class="vazio-icon">⚠️</span>' + (dados.erro || "Erro ao carregar.") + '</div>';
+      document.getElementById("listaJogos").innerHTML = "";
+      return;
+    }
+
+    // Nome
+    var primeiro = dados.nome.split(" ")[0];
+    document.getElementById("nomeAluno").textContent = primeiro;
+    document.getElementById("nomeAlunoWelcome").textContent = primeiro;
+
+    renderInscricoes(dados.inscricoes);
+    renderJogos(dados.jogos);
+
+  } catch {
+    document.getElementById("listaInscricoes").innerHTML =
+      '<div class="vazio"><span class="vazio-icon">📡</span>Sem conexão com o servidor.</div>';
+    document.getElementById("listaJogos").innerHTML = "";
+  }
+}
+
+// ── Renderiza inscrições ─────────────────────────────────────────────────────
+function renderInscricoes(lista) {
+  var el = document.getElementById("listaInscricoes");
+  if (!lista || lista.length === 0) {
+    el.innerHTML = '<div class="vazio"><span class="vazio-icon">📋</span>Nenhuma inscrição encontrada.</div>';
+    return;
+  }
+
+  var html = "";
+  lista.forEach(function (i) {
+    var data = i.data_inscricao
+      ? new Date(i.data_inscricao).toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit", year:"numeric" })
+      : "—";
+    html += '<div class="inscricao-item">' +
+      '<div class="inscricao-modalidade">' + (NOMES_MOD[i.modalidade] || i.modalidade) + '</div>' +
+      (i.funcao ? '<div class="inscricao-funcao">🎯 ' + escapeHtml(i.funcao) + '</div>' : '') +
+      '<div class="inscricao-data">Inscrito em ' + data + '</div>' +
+      '</div>';
+  });
+  el.innerHTML = html;
+}
+
+// ── Renderiza jogos ──────────────────────────────────────────────────────────
+function renderJogos(lista) {
+  var el = document.getElementById("listaJogos");
+  if (!lista || lista.length === 0) {
+    el.innerHTML = '<div class="vazio">' +
+      '<span class="vazio-icon">📅</span>' +
+      'Nenhum jogo agendado ainda.<br>' +
+      '<small style="margin-top:6px;display:block;color:var(--text-dim)">Os jogos serão publicados pela organização em breve.</small>' +
+      '</div>';
+    return;
+  }
+
+  var html = "";
+  lista.forEach(function (j) {
+    var status  = j.status || "agendado";
+    var nomeStatus = NOMES_STATUS[status] || status;
+    var dataStr = "—";
+    if (j.data_hora) {
+      var d = new Date(j.data_hora);
+      dataStr = d.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit", year:"numeric" }) +
+                " às " + d.toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" });
+    }
+
+    html += '<div class="jogo-card">' +
+      '<div class="jogo-status-dot ' + status + '"></div>' +
+      '<div class="jogo-titulo">' + escapeHtml(j.titulo) + '</div>' +
+      '<div class="jogo-meta">' +
+        '<span class="jogo-meta-item"><span class="icon">🎮</span>' + (NOMES_MOD[j.modalidade] || j.modalidade) + '</span>' +
+        '<span class="jogo-meta-item"><span class="icon">🏁</span>' + escapeHtml(j.fase || "—") + '</span>' +
+        '<span class="jogo-meta-item"><span class="icon">📅</span>' + dataStr + '</span>' +
+        (j.local ? '<span class="jogo-meta-item"><span class="icon">📍</span>' + escapeHtml(j.local) + '</span>' : '') +
+      '</div>' +
+      '<span class="status-label ' + status + '">' + nomeStatus + '</span>' +
+      (j.resultado ? '<div class="jogo-resultado">🏆 Resultado: ' + escapeHtml(j.resultado) + '</div>' : '') +
+      (j.observacoes ? '<div class="jogo-obs">📝 ' + escapeHtml(j.observacoes) + '</div>' : '') +
+      '</div>';
+  });
+  el.innerHTML = html;
+}
+
+// ── Utilitários ──────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+</script>
+</body>
+</html>
